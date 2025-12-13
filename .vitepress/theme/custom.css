@@ -1,0 +1,199 @@
+/* WebArcade Custom Theme */
+
+:root {
+  /* Brand Colors - Purple/Violet Theme */
+  --vp-c-brand-1: #8b5cf6;
+  --vp-c-brand-2: #7c3aed;
+  --vp-c-brand-3: #6d28d9;
+  --vp-c-brand-soft: rgba(139, 92, 246, 0.14);
+
+  /* Accent gradient */
+  --webarcade-gradient: linear-gradient(135deg, #8b5cf6 0%, #6366f1 50%, #3b82f6 100%);
+
+  /* Home hero gradient */
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: var(--webarcade-gradient);
+
+  --vp-home-hero-image-background-image: linear-gradient(135deg, #8b5cf6 30%, #6366f1 70%);
+  --vp-home-hero-image-filter: blur(56px);
+}
+
+.dark {
+  --vp-c-brand-1: #a78bfa;
+  --vp-c-brand-2: #8b5cf6;
+  --vp-c-brand-3: #7c3aed;
+  --vp-c-brand-soft: rgba(139, 92, 246, 0.16);
+}
+
+/* Hero section styling */
+.VPHero .name {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.VPHero .tagline {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  opacity: 0.85;
+}
+
+/* Hero image container */
+.VPHero .image-container {
+  transform: scale(1.1);
+}
+
+/* Feature cards */
+.VPFeature {
+  border-radius: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.VPFeature:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -8px rgba(139, 92, 246, 0.15);
+}
+
+.dark .VPFeature:hover {
+  box-shadow: 0 12px 24px -8px rgba(139, 92, 246, 0.25);
+}
+
+/* Feature icons */
+.VPFeature .icon {
+  font-size: 1.75rem;
+}
+
+/* Button styling */
+.VPButton.brand {
+  background: var(--webarcade-gradient);
+  border: none;
+  font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.VPButton.brand:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px -4px rgba(139, 92, 246, 0.4);
+}
+
+/* Nav logo */
+.VPNavBarTitle .title {
+  font-weight: 700;
+  background: var(--webarcade-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Sidebar styling */
+.VPSidebar .VPSidebarItem.level-0 > .item > .text {
+  font-weight: 600;
+  color: var(--vp-c-brand-1);
+}
+
+/* Code blocks */
+.vp-code-group .tabs label {
+  font-weight: 500;
+}
+
+/* Custom code highlighting */
+:root {
+  --vp-code-tab-divider: var(--vp-c-brand-soft);
+  --vp-code-tab-text-color: var(--vp-c-text-2);
+  --vp-code-tab-bg: var(--vp-c-bg-soft);
+  --vp-code-tab-hover-text-color: var(--vp-c-brand-1);
+  --vp-code-tab-active-text-color: var(--vp-c-brand-1);
+  --vp-code-tab-active-bar-color: var(--vp-c-brand-1);
+}
+
+/* Custom containers */
+.custom-block.tip {
+  border-color: var(--vp-c-brand-1);
+}
+
+.custom-block.tip .custom-block-title {
+  color: var(--vp-c-brand-1);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--vp-c-divider);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--vp-c-brand-soft);
+}
+
+/* Screenshot showcase styling */
+.screenshot-showcase {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.screenshot-showcase img {
+  border-radius: 12px;
+  box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 100%;
+}
+
+.screenshot-showcase img:hover {
+  transform: scale(1.02);
+  box-shadow: 0 16px 48px -12px rgba(139, 92, 246, 0.3);
+}
+
+.dark .screenshot-showcase img {
+  box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.5);
+}
+
+.dark .screenshot-showcase img:hover {
+  box-shadow: 0 16px 48px -12px rgba(139, 92, 246, 0.4);
+}
+
+/* Table of contents styling */
+.VPDocOutlineItem a {
+  transition: color 0.2s ease;
+}
+
+.VPDocOutlineItem a:hover {
+  color: var(--vp-c-brand-1);
+}
+
+/* Footer styling */
+.VPFooter {
+  border-top: 1px solid var(--vp-c-divider);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .VPHero .tagline {
+    font-size: 1.1rem;
+  }
+
+  .screenshot-showcase {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Smooth page transitions */
+.VPContent {
+  transition: opacity 0.2s ease;
+}
+
+/* Badge styling */
+.VPBadge {
+  background: var(--vp-c-brand-soft);
+  color: var(--vp-c-brand-1);
+  font-weight: 500;
+}

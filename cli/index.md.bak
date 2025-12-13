@@ -1,0 +1,562 @@
+# CLI Reference
+
+The WebArcade CLI (`webarcade`) helps you create, build, and manage plugins and applications.
+
+## Installation
+
+```bash
+cargo install webarcade
+```
+
+Verify installation:
+
+```bash
+webarcade --version
+```
+
+---
+
+## Command Overview
+
+| Command | Description |
+|---------|-------------|
+| `webarcade init` | Create a new project |
+| `webarcade new` | Create a new plugin |
+| `webarcade build` | Build plugins |
+| `webarcade dev` | Build and run in development mode |
+| `webarcade app` | Build production application |
+| `webarcade install` | Install plugin from GitHub |
+| `webarcade list` | List available plugins |
+| `webarcade package` | Package for distribution |
+
+---
+
+## webarcade init
+
+Create a new WebArcade project.
+
+### Syntax
+
+```bash
+webarcade init <name>
+```
+
+### Arguments
+
+| Argument | Required | Description |
+|----------|----------|-------------|
+| `name` | Yes | Project name (creates folder with this name) |
+
+### Examples
+
+```bash
+# Create a new project called "my-app"
+webarcade init my-app
+
+# Then enter the project
+cd my-app
+```
+
+### What It Creates
+
+```
+my-app/
+├── src/                    # Frontend source
+├── app/                    # Desktop runtime
+├── plugins/                # Plugin source code
+│   └── hello-world/       # Example plugin
+├── package.json
+└── README.md
+```
+
+---
+
+## webarcade new
+
+Create a new plugin.
+
+### Syntax
+
+```bash
+webarcade new <plugin-id> [options]
+```
+
+### Arguments
+
+| Argument | Required | Description |
+|----------|----------|-------------|
+| `plugin-id` | Yes | Unique plugin identifier (lowercase, hyphens allowed) |
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `--frontend-only` | Create without Rust backend |
+| `--name <name>` | Display name (default: plugin-id) |
+| `--author <author>` | Author name |
+
+### Examples
+
+```bash
+# Create a full-stack plugin (with Rust backend)
+webarcade new my-plugin
+
+# Create a frontend-only plugin (JavaScript only)
+webarcade new my-plugin --frontend-only
+
+# Create with metadata
+webarcade new my-plugin --name "My Plugin" --author "Your Name"
+
+# Create frontend-only with metadata
+webarcade new file-manager --frontend-only --name "File Manager" --author "Dev Team"
+```
+
+### Frontend-Only Plugin Structure
+
+```
+plugins/my-plugin/
+└── index.jsx               # Entry point
+```
+
+### Full-Stack Plugin Structure
+
+```
+plugins/my-plugin/
+├── index.jsx               # Frontend entry
+├── Cargo.toml              # Rust config & routes
+├── mod.rs                  # Plugin metadata
+└── router.rs               # HTTP handlers
+```
+
+---
+
+## webarcade build
+
+Build one or more plugins.
+
+### Syntax
+
+```bash
+webarcade build <plugin-id>
+webarcade build --all
+```
+
+### Arguments
+
+| Argument | Required | Description |
+|----------|----------|-------------|
+| `plugin-id` | Yes* | Plugin to build (*or use `--all`) |
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `--all` | Build all plugins |
+
+### Examples
+
+```bash
+# Build a specific plugin
+webarcade build my-plugin
+
+# Build all plugins in the project
+webarcade build --all
+```
+
+### Build Output
+
+| Plugin Type | Output Files | Location |
+|-------------|--------------|----------|
+| Frontend-only | `plugin-id.js` | `build/plugins/` |
+| Full-stack | `plugin-id.js` + `plugin-id.dll` | `build/plugins/` |
+
+Built plugins are automatically copied to `app/plugins/` for the runtime.
+
+### Build Times
+
+| Plugin Type | Typical Time |
+|-------------|--------------|
+| Frontend-only | ~1 second |
+| Full-stack (first build) | 30-60 seconds |
+| Full-stack (rebuild) | 5-15 seconds |
+
+---
+
+## webarcade dev
+
+Build and run the application in development mode.
+
+### Syntax
+
+```bash
+webarcade dev
+```
+
+### What It Does
+
+1. Builds the frontend (SolidJS)
+2. Builds all plugins
+3. Compiles the Rust runtime
+4. Launches the application window
+
+### Examples
+
+```bash
+# Run in development mode
+webarcade dev
+```
+
+### Notes
+
+- First run is slow (Rust compilation)
+- Subsequent runs are faster
+- Press `Ctrl+C` to stop
+- Changes require rebuild: `webarcade build <plugin>` then restart
+
+---
+
+## webarcade app
+
+Build the production application.
+
+### Syntax
+
+```bash
+webarcade app [options]
+```
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `--locked` | Embed all plugins in the binary |
+
+### Examples
+
+```bash
+# Build production app (unlocked mode)
+# Plugins in separate folder
+webarcade app
+
+# Build production app (locked mode)
+# Single executable with embedded plugins
+webarcade app --locked
+```
+
+### Unlocked Mode Output
+
+```
+app/target/release/
+├── my-app.exe              # Executable
+└── plugins/                # Plugin files
+    ├── plugin-a.js
+    ├── plugin-a.dll
+    └── plugin-b.js
+```
+
+### Locked Mode Output
+
+```
+app/target/release/
+└── my-app.exe              # Everything embedded
+```
+
+### Comparison
+
+| Feature | Unlocked | Locked |
+|---------|----------|--------|
+| File count | Multiple | Single |
+| Users can add plugins | Yes | No |
+| Total size | Larger | Smaller |
+| Startup time | Slower | Faster |
+
+---
+
+## webarcade install
+
+Install a plugin from GitHub.
+
+### Syntax
+
+```bash
+webarcade install <user/repo> [options]
+```
+
+### Arguments
+
+| Argument | Required | Description |
+|----------|----------|-------------|
+| `user/repo` | Yes | GitHub repository (e.g., `username/plugin-name`) |
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `-f, --force` | Force reinstall (overwrite existing) |
+
+### Examples
+
+```bash
+# Install from GitHub
+webarcade install johndoe/cool-plugin
+
+# Force reinstall (overwrites existing)
+webarcade install johndoe/cool-plugin -f
+webarcade install johndoe/cool-plugin --force
+```
+
+### How It Works
+
+1. Clones the repository from GitHub
+2. Validates it's a valid WebArcade plugin
+3. Checks if already installed and compares versions
+4. If newer version, prompts to update
+5. Copies plugin source to `plugins/` folder
+
+### Plugin Repository Structure
+
+The plugin can be at the repository root:
+
+```
+cool-plugin/
+├── index.jsx               # Required
+├── mod.rs                  # Optional (full-stack)
+├── Cargo.toml              # Optional (full-stack)
+└── router.rs               # Optional (full-stack)
+```
+
+Or in a subdirectory:
+
+```
+cool-plugin-repo/
+├── README.md
+├── LICENSE
+└── plugin/                 # Plugin here
+    ├── index.jsx
+    └── ...
+```
+
+### After Installing
+
+```bash
+# Build the installed plugin
+webarcade build cool-plugin
+
+# Run to see it
+webarcade dev
+```
+
+---
+
+## webarcade list
+
+List all plugins in the project.
+
+### Syntax
+
+```bash
+webarcade list
+```
+
+### Example Output
+
+```
+Available plugins:
+
+  hello-world (1.0.0) - frontend-only
+    A simple hello world plugin
+
+  file-manager (2.1.0) - full-stack
+    File management with Rust backend
+
+  themes (1.0.0) - frontend-only
+    Theme management plugin
+```
+
+### Information Shown
+
+- Plugin ID
+- Version
+- Type (frontend-only or full-stack)
+- Description (if available)
+
+---
+
+## webarcade package
+
+Interactive packaging for distribution.
+
+### Syntax
+
+```bash
+webarcade package [options]
+```
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `--locked` | Embed plugins in binary |
+
+### Examples
+
+```bash
+# Interactive packaging
+webarcade package
+
+# Interactive packaging with locked plugins
+webarcade package --locked
+```
+
+### What It Does
+
+Guides you through packaging options:
+- Target platforms
+- Installer type
+- Compression options
+- Code signing (if available)
+
+---
+
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `RUST_LOG` | Set log level: `debug`, `info`, `warn`, `error` |
+
+### Examples
+
+```bash
+# Show debug logs
+RUST_LOG=debug webarcade dev
+
+# Show only warnings and errors
+RUST_LOG=warn webarcade dev
+```
+
+---
+
+## Common Workflows
+
+### Creating a New Project
+
+```bash
+# 1. Create project
+webarcade init my-app
+cd my-app
+
+# 2. Create a plugin
+webarcade new my-plugin --frontend-only
+
+# 3. Edit the plugin
+# (edit plugins/my-plugin/index.jsx)
+
+# 4. Build and run
+webarcade build my-plugin
+webarcade dev
+```
+
+### Adding Features to a Plugin
+
+```bash
+# 1. Edit your plugin
+# (edit plugins/my-plugin/index.jsx)
+
+# 2. Rebuild
+webarcade build my-plugin
+
+# 3. Restart the app
+# (Ctrl+C to stop, then:)
+webarcade dev
+```
+
+### Installing an External Plugin
+
+```bash
+# 1. Install from GitHub
+webarcade install author/cool-plugin
+
+# 2. Build it
+webarcade build cool-plugin
+
+# 3. Run
+webarcade dev
+```
+
+### Building for Distribution
+
+```bash
+# 1. Build all plugins
+webarcade build --all
+
+# 2. Build production app
+webarcade app
+
+# Or for single-file distribution:
+webarcade app --locked
+```
+
+---
+
+## Troubleshooting
+
+### "Plugin not detected"
+
+**Cause:** Missing `index.jsx` in plugin folder.
+
+**Solution:** Ensure `plugins/plugin-name/index.jsx` exists.
+
+### "Handler not found"
+
+**Cause:** Route name in `Cargo.toml` doesn't match function name.
+
+**Solution:** Check that route names exactly match function names:
+
+```toml
+# Cargo.toml
+[routes]
+"GET /hello" = "handle_hello"  # Must match function name
+```
+
+```rust
+// router.rs
+pub async fn handle_hello(req: HttpRequest) -> HttpResponse {  // This name
+    // ...
+}
+```
+
+### "Build failed"
+
+**Cause:** Handler signature is wrong.
+
+**Solution:** Use this exact signature:
+
+```rust
+pub async fn handler_name(req: HttpRequest) -> HttpResponse {
+    // ...
+}
+```
+
+### "DLL won't reload"
+
+**Cause:** DLLs are locked while the app is running.
+
+**Solution:** Stop the app (`Ctrl+C`), rebuild, then restart.
+
+### Slow First Build
+
+**Cause:** Rust compiling dependencies.
+
+**Solution:** This is normal for the first build. Subsequent builds are faster.
+
+### "cargo: command not found"
+
+**Cause:** Rust not installed or not in PATH.
+
+**Solution:** Install Rust from [rustup.rs](https://rustup.rs/) and restart your terminal.
+
+### "bun: command not found"
+
+**Cause:** Bun not installed or not in PATH.
+
+**Solution:** Install Bun from [bun.sh](https://bun.sh/) and restart your terminal.
