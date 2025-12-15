@@ -22,8 +22,8 @@ plugins/todo-app/
 
 ```jsx
 import { plugin, api } from '@/api/plugin';
-import { createSignal, createResource, For } from 'solid-js';
-import { IconPlus, IconTrash, IconCheck, IconList } from '@tabler/icons-solidjs';
+import { createSignal, createResource, For, Show } from 'solid-js';
+import { IconPlus, IconTrash, IconCheck, IconList, IconRefresh } from '@tabler/icons-solidjs';
 
 // Fetch todos from backend
 async function fetchTodos() {
@@ -145,41 +145,33 @@ export default plugin({
     version: '1.0.0',
 
     start(api) {
-        // Plugin tab
-        api.add({
-            panel: 'tab',
-            label: 'Todo',
-            icon: IconList,
-        });
-
-        // Main viewport
-        api.add({
-            panel: 'viewport',
-            id: 'list',
-            label: 'Tasks',
+        // Main viewport panel
+        api.register('todo-list', {
+            type: 'panel',
             component: TodoList,
+            label: 'Tasks',
+            icon: IconList
         });
 
-        // Stats sidebar
-        api.add({
-            panel: 'right',
-            id: 'stats',
-            label: 'Stats',
+        // Stats sidebar panel
+        api.register('stats', {
+            type: 'panel',
             component: Stats,
+            label: 'Stats'
         });
 
-        // Toolbar
-        api.toolbarGroup('todo-group', { label: 'Todo', order: 1 });
-        api.toolbar('refresh', {
+        // Toolbar button
+        api.register('refresh', {
+            type: 'toolbar',
             icon: IconRefresh,
             tooltip: 'Refresh todos',
-            group: 'todo-group',
-            onClick: () => window.location.reload(),
+            onClick: () => window.location.reload()
         });
-    },
 
-    active(api) {
-        api.showRight(true);
+        // Keyboard shortcut
+        api.shortcut({
+            'ctrl+r': () => window.location.reload()
+        });
     }
 });
 ```
@@ -332,6 +324,7 @@ webarcade dev
 ## What This Example Demonstrates
 
 ### Frontend-Backend Communication
+
 ```jsx
 // GET request
 const res = await api('todo-app/todos');
@@ -345,6 +338,7 @@ await api('todo-app/todos', {
 ```
 
 ### Rust HTTP Handlers
+
 ```rust
 pub async fn handle_create(req: HttpRequest) -> HttpResponse {
     let input: CreateTodo = req.body_json()?;
@@ -354,6 +348,7 @@ pub async fn handle_create(req: HttpRequest) -> HttpResponse {
 ```
 
 ### Path Parameters
+
 ```toml
 # Cargo.toml
 "PUT /todos/:id/toggle" = "handle_toggle"
@@ -365,10 +360,38 @@ let id = req.path_params.get("id");
 ```
 
 ### SolidJS Resources
+
 ```jsx
 const [todos, { refetch }] = createResource(fetchTodos);
 // Automatic loading state
 // refetch() to reload data
+```
+
+### Component Registration
+
+```jsx
+api.register('todo-list', {
+    type: 'panel',
+    component: TodoList,
+    label: 'Tasks',
+    icon: IconList
+});
+```
+
+## Adding Contracts
+
+Make components discoverable by other plugins:
+
+```jsx
+api.register('todo-list', {
+    type: 'panel',
+    component: TodoList,
+    label: 'Tasks',
+    contracts: {
+        provides: ['task-list', 'todo-manager'],
+        emits: ['todo-created', 'todo-completed', 'todo-deleted']
+    }
+});
 ```
 
 ## Architecture
@@ -382,3 +405,10 @@ const [todos, { refetch }] = createResource(fetchTodos);
 │  (port 3000)     │         │   (port 3001)    │
 └──────────────────┘         └──────────────────┘
 ```
+
+## Next Steps
+
+- Add [keyboard shortcuts](/api/index#keyboard-shortcuts) for common actions
+- Implement [contracts](/api/registry) for cross-plugin communication
+- Add [context menus](/api/index#context-menus) for right-click actions
+- Create a [custom layout](/api/layout-manager) for the todo app

@@ -8,14 +8,9 @@ Understanding the plugin lifecycle is essential for building robust WebArcade pl
 ┌─────────────────────────────────────────────────────────────┐
 │  Plugin Loaded                                              │
 │    ↓                                                        │
-│  start(api)  ─── Register panels, toolbar, menu, footer    │
+│  start(api)  ─── Register components, shortcuts, services   │
 │    ↓                                                        │
-│  ┌─────────────────────────────────────────────────────┐    │
-│  │  User switches plugins (tab bar)                    │    │
-│  │    ↓                    ↓                           │    │
-│  │  active(api)        inactive(api)                   │    │
-│  │  Show panels        (other plugin now active)       │    │
-│  └─────────────────────────────────────────────────────┘    │
+│  [Plugin is running]                                        │
 │    ↓                                                        │
 │  stop(api)  ─── Plugin disabled/unloaded                   │
 └─────────────────────────────────────────────────────────────┘
@@ -25,70 +20,55 @@ Understanding the plugin lifecycle is essential for building robust WebArcade pl
 
 ### `start(api)`
 
-Called **once** when the plugin is first loaded. Use this to register all UI components.
+Called **once** when the plugin is first loaded. Use this to register all components and set up services.
 
 ```jsx
 start(api) {
-    // Register your tab
-    api.add({
-        panel: 'tab',
-        label: 'My Plugin',
-        icon: MyIcon,
+    // Register panel components
+    api.register('explorer', {
+        type: 'panel',
+        component: Explorer,
+        label: 'Explorer',
+        icon: IconFolder
     });
 
-    // Register all panels
-    api.add({ panel: 'viewport', id: 'main', component: MainView });
-    api.add({ panel: 'left', id: 'explorer', label: 'Explorer', component: Explorer });
+    api.register('editor', {
+        type: 'panel',
+        component: Editor,
+        label: 'Editor'
+    });
 
     // Register toolbar buttons
-    api.toolbar('save', {
+    api.register('save-btn', {
+        type: 'toolbar',
         icon: IconSave,
-        tooltip: 'Save',
-        onClick: () => saveFile(),
+        tooltip: 'Save (Ctrl+S)',
+        onClick: () => saveFile()
     });
 
     // Register menu items
-    api.menu('file', {
+    api.register('file-menu', {
+        type: 'menu',
         label: 'File',
         submenu: [
-            { id: 'new', label: 'New', action: () => newFile() },
+            { id: 'new', label: 'New', action: () => newFile() }
         ]
     });
-}
-```
 
-### `active(api)`
+    // Register keyboard shortcuts
+    api.shortcut({
+        'ctrl+s': () => saveFile(),
+        'ctrl+n': () => newFile()
+    });
 
-Called each time the user switches **to** this plugin via the tab bar.
+    // Provide services for other plugins
+    api.provide('editor', {
+        openFile: (path) => openFile(path),
+        save: () => saveFile()
+    });
 
-```jsx
-active(api) {
-    // Show panels that should be visible for this plugin
-    api.showLeft(true);
-    api.showBottom(true);
-
-    // Focus a specific viewport tab
-    api.focusViewport('editor');
-
-    // Load data or refresh state
-    loadProjectFiles();
-}
-```
-
-### `inactive(api)`
-
-Called each time the user switches **away** from this plugin.
-
-```jsx
-inactive(api) {
-    // Save unsaved state
-    saveCurrentState();
-
-    // Optionally hide panels
-    api.hideBottom();
-
-    // Pause background tasks
-    pauseAutoRefresh();
+    // Initialize state
+    api.set('editor.currentFile', null);
 }
 ```
 
@@ -98,40 +78,47 @@ Called when the plugin is disabled or the application closes.
 
 ```jsx
 stop(api) {
-    // Clean up resources
-    closeConnections();
-
     // Save state to disk
     saveState();
 
-    // Unsubscribe from events
+    // Clean up subscriptions
     unsubscribeAll();
+
+    // Close connections
+    closeConnections();
 }
 ```
 
-## Panel-Level Lifecycle
+## Component Lifecycle Hooks
 
-Individual panels can also have lifecycle hooks:
+Individual panel components can have their own lifecycle hooks:
 
 ```jsx
-api.add({
-    panel: 'viewport',
-    id: 'editor',
+api.register('editor', {
+    type: 'panel',
     component: Editor,
+    label: 'Editor',
 
-    start(api) {
-        // Called when panel is first created
-        console.log('Editor panel created');
+    onMount: () => {
+        // Called when panel is first rendered
+        console.log('Editor mounted');
+        loadLastOpenFile();
     },
 
-    active(api) {
-        // Called when plugin becomes active
-        console.log('Editor is visible');
+    onUnmount: () => {
+        // Called when panel is removed
+        console.log('Editor unmounted');
+        saveCurrentFile();
     },
 
-    inactive(api) {
-        // Called when plugin becomes inactive
-        console.log('Editor is hidden');
+    onFocus: () => {
+        // Called when panel receives focus
+        console.log('Editor focused');
+    },
+
+    onBlur: () => {
+        // Called when panel loses focus
+        console.log('Editor blurred');
     }
 });
 ```
@@ -139,65 +126,207 @@ api.add({
 ## Best Practices
 
 ### Do in `start()`
-- Register all UI components (panels, toolbar, menu)
-- Set up services for other plugins
-- Initialize one-time resources
 
-### Do in `active()`
-- Show/hide panels based on context
-- Refresh data that may have changed
-- Resume paused operations
-
-### Do in `inactive()`
-- Save state to prevent data loss
-- Pause expensive operations
-- Clean up temporary UI state
+- Register all UI components
+- Set up keyboard shortcuts
+- Provide services for other plugins
+- Subscribe to events from other plugins
+- Initialize default state
+- Register layouts if providing custom layouts
 
 ### Do in `stop()`
-- Save all persistent state
-- Clean up subscriptions
-- Close connections
 
-## Example: Complete Lifecycle
+- Save persistent state
+- Unsubscribe from events
+- Clean up connections
+- Remove any global listeners
+
+## Example: Complete Plugin
 
 ```jsx
 import { plugin } from '@/api/plugin';
+import { createSignal } from 'solid-js';
+import { IconNotes, IconPlus, IconTrash } from '@tabler/icons-solidjs';
+
+const [notes, setNotes] = createSignal([]);
+const [selectedNote, setSelectedNote] = createSignal(null);
+
+function NoteList() {
+    return (
+        <div class="p-4">
+            <For each={notes()}>
+                {(note) => (
+                    <div
+                        class={`p-2 cursor-pointer ${selectedNote()?.id === note.id ? 'bg-primary' : ''}`}
+                        onClick={() => setSelectedNote(note)}
+                    >
+                        {note.title}
+                    </div>
+                )}
+            </For>
+        </div>
+    );
+}
+
+function NoteEditor() {
+    return (
+        <div class="p-4">
+            <Show when={selectedNote()} fallback={<p>Select a note</p>}>
+                <h1 class="text-xl font-bold">{selectedNote().title}</h1>
+                <textarea
+                    class="w-full h-64 mt-4"
+                    value={selectedNote().content}
+                    onInput={(e) => updateNote(selectedNote().id, e.target.value)}
+                />
+            </Show>
+        </div>
+    );
+}
+
+function createNote() {
+    const newNote = {
+        id: Date.now(),
+        title: 'New Note',
+        content: ''
+    };
+    setNotes([...notes(), newNote]);
+    setSelectedNote(newNote);
+}
+
+function deleteNote(id) {
+    setNotes(notes().filter(n => n.id !== id));
+    if (selectedNote()?.id === id) {
+        setSelectedNote(null);
+    }
+}
+
+function updateNote(id, content) {
+    setNotes(notes().map(n =>
+        n.id === id ? { ...n, content } : n
+    ));
+}
 
 export default plugin({
     id: 'notes',
     name: 'Notes',
     version: '1.0.0',
 
-    state: {
-        notes: [],
-        currentNote: null,
-    },
-
     start(api) {
         // Load saved notes
-        this.state.notes = api.get('notes.list', []);
+        const savedNotes = api.get('notes.list', []);
+        setNotes(savedNotes);
 
-        // Register UI
-        api.add({ panel: 'tab', label: 'Notes' });
-        api.add({ panel: 'viewport', id: 'editor', component: NoteEditor });
-        api.add({ panel: 'left', id: 'list', label: 'Notes', component: NoteList });
-    },
+        // Register panels
+        api.register('note-list', {
+            type: 'panel',
+            component: NoteList,
+            label: 'Notes',
+            icon: IconNotes
+        });
 
-    active(api) {
-        // Refresh notes list
-        api.showLeft(true);
-    },
+        api.register('note-editor', {
+            type: 'panel',
+            component: NoteEditor,
+            label: 'Editor'
+        });
 
-    inactive(api) {
-        // Auto-save current note
-        if (this.state.currentNote?.modified) {
-            this.saveNote(this.state.currentNote);
-        }
+        // Register toolbar
+        api.register('new-note', {
+            type: 'toolbar',
+            icon: IconPlus,
+            tooltip: 'New Note',
+            onClick: createNote
+        });
+
+        api.register('delete-note', {
+            type: 'toolbar',
+            icon: IconTrash,
+            tooltip: 'Delete Note',
+            onClick: () => selectedNote() && deleteNote(selectedNote().id),
+            disabled: () => !selectedNote()
+        });
+
+        // Keyboard shortcuts
+        api.shortcut({
+            'ctrl+n': createNote,
+            'delete': () => selectedNote() && deleteNote(selectedNote().id)
+        });
+
+        // Provide service for other plugins
+        api.provide('notes', {
+            create: createNote,
+            delete: deleteNote,
+            getAll: () => notes(),
+            getSelected: () => selectedNote()
+        });
     },
 
     stop(api) {
-        // Save all notes
-        api.set('notes.list', this.state.notes);
+        // Save notes before unloading
+        api.set('notes.list', notes());
     }
 });
+```
+
+## Layout Events
+
+Listen for layout changes if your plugin needs to react:
+
+```jsx
+start(api) {
+    // Listen for layout changes
+    document.addEventListener('layout:change', (event) => {
+        const { from, to } = event.detail;
+        console.log(`Layout changed from ${from} to ${to}`);
+    });
+}
+```
+
+## Plugin State Management
+
+Use the shared store for persistent state across sessions:
+
+```jsx
+start(api) {
+    // Load previous state
+    const savedState = api.get('myPlugin.state', {
+        lastOpenFile: null,
+        recentFiles: [],
+        settings: { autoSave: true }
+    });
+
+    // Initialize with saved state
+    initializeApp(savedState);
+
+    // Watch for changes from other plugins
+    api.watch('settings.theme', (theme) => {
+        applyTheme(theme);
+    });
+}
+
+stop(api) {
+    // Save state for next session
+    api.set('myPlugin.state', getCurrentState());
+}
+```
+
+## Error Handling
+
+Handle errors gracefully in lifecycle hooks:
+
+```jsx
+start(api) {
+    try {
+        // Initialize plugin
+        initializeComponents(api);
+    } catch (error) {
+        console.error('[MyPlugin] Initialization failed:', error);
+        // Register minimal error UI
+        api.register('error-view', {
+            type: 'panel',
+            component: () => <div class="p-4 text-error">Plugin failed to load</div>,
+            label: 'Error'
+        });
+    }
+}
 ```

@@ -5,13 +5,31 @@ This section provides comprehensive documentation for all WebArcade APIs.
 ## Frontend APIs
 
 ### [Plugin API](/api/plugin-api)
-Core API for building plugins. Register UI components, manage panel visibility, and control the application layout.
+Core API for building plugins. Register UI components using the unified component registry.
 
 Key methods:
-- `api.add()` - Register panels, viewport, sidebars
-- `api.toolbar()` - Add toolbar buttons
-- `api.menu()` - Add menu items
-- `api.footer()` - Add footer components
+- `api.register()` - Register panels, toolbar items, menus, status bar
+- `api.unregister()` - Remove registered components
+- `api.slot()` - Control component visibility (show/hide/toggle/focus)
+- `api.layout` - Layout management (switch layouts, navigate back)
+- `api.shortcut()` - Keyboard shortcuts
+- `api.context()` - Context menu registration
+
+### [Component Registry](/api/registry)
+Contract-based component system for cross-plugin communication.
+
+Features:
+- **Component Types** - Panel, Toolbar, Menu, Status
+- **Contracts** - provides, accepts, emits
+- **Discovery** - Find components by contract
+
+### [Layout Manager](/api/layout-manager)
+Dynamic layout system for switching between different UI arrangements.
+
+Features:
+- **Register Layouts** - Define custom layout components
+- **Switch Layouts** - Change UI at runtime
+- **History** - Navigate back to previous layouts
 
 ### [Bridge API](/api/bridge-api)
 Inter-plugin communication system. Share data and functionality between plugins.
@@ -36,15 +54,108 @@ Key types:
 
 ## Quick Reference
 
-### Panel Registration
+### Component Registration
 
 ```jsx
-api.add({
-    panel: 'viewport' | 'left' | 'right' | 'bottom' | 'tab',
-    id: 'component-id',
-    component: MyComponent,
-    label: 'Tab Label',
-    icon: IconComponent,
+// Register a panel component
+api.register('explorer', {
+    type: 'panel',
+    component: Explorer,
+    label: 'Explorer',
+    icon: IconFolder,
+    contracts: {
+        provides: ['file-browser'],
+        accepts: ['file-selection'],
+        emits: ['file-opened']
+    }
+});
+
+// Register a toolbar button
+api.register('save-btn', {
+    type: 'toolbar',
+    icon: IconSave,
+    label: 'Save',
+    tooltip: 'Save file (Ctrl+S)',
+    onClick: () => save(),
+    group: 'file-group'
+});
+
+// Register a menu
+api.register('file-menu', {
+    type: 'menu',
+    label: 'File',
+    submenu: [
+        { id: 'new', label: 'New', shortcut: 'Ctrl+N', action: () => {} },
+        { id: 'open', label: 'Open', shortcut: 'Ctrl+O', action: () => {} },
+        { divider: true },
+        { id: 'save', label: 'Save', shortcut: 'Ctrl+S', action: () => {} }
+    ]
+});
+
+// Register a status bar item
+api.register('line-info', {
+    type: 'status',
+    component: LineInfo,
+    align: 'right'
+});
+```
+
+### Slot Control
+
+```jsx
+// Control component visibility
+api.slot('explorer').show();
+api.slot('explorer').hide();
+api.slot('explorer').toggle();
+api.slot('explorer').focus();
+```
+
+### Layout Management
+
+```jsx
+// Switch to a different layout
+api.layout.setActive('material-editor');
+
+// Go back to previous layout
+api.layout.back();
+
+// Get current layout
+const currentLayout = api.layout.getActiveId();
+
+// Check if can go back
+if (api.layout.canGoBack()) {
+    api.layout.back();
+}
+```
+
+### Keyboard Shortcuts
+
+```jsx
+// Register shortcuts (convenience method)
+api.shortcut({
+    'ctrl+s': () => save(),
+    'ctrl+n': () => newFile(),
+    'ctrl+shift+p': () => openCommandPalette()
+});
+
+// Or use the full API
+const unregister = api.shortcut.register((event) => {
+    if (api.shortcut.matches(event, 'ctrl+s')) {
+        event.preventDefault();
+        save();
+    }
+});
+```
+
+### Context Menus
+
+```jsx
+api.context({
+    context: 'file-tree',
+    label: 'Open',
+    icon: IconFile,
+    action: (data) => openFile(data.path),
+    order: 1
 });
 ```
 
@@ -77,6 +188,8 @@ const health = api.selector('player.health');
 ### HTTP Requests
 
 ```jsx
+import { api } from '@/api/plugin';
+
 // Frontend
 const response = await api('my-plugin/endpoint');
 const data = await response.json();
@@ -85,4 +198,16 @@ const data = await response.json();
 pub async fn handle_request(req: HttpRequest) -> HttpResponse {
     json_response(&json!({ "status": "ok" }))
 }
+```
+
+### Events
+
+```jsx
+// Emit an event
+api.emit('file-saved', { path: '/path/to/file' });
+
+// Listen for events
+const unsubscribe = api.on('file-saved', (data) => {
+    console.log('File saved:', data.path);
+});
 ```

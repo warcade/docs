@@ -74,38 +74,25 @@ export default plugin({
     version: '1.0.0',
 
     start(api) {
-        // Register plugin tab
-        api.add({
-            panel: 'tab',
-            label: 'Hello World',
-            icon: IconHome,
-        });
-
-        // Register main viewport
-        api.add({
-            panel: 'viewport',
-            id: 'main',
-            label: 'Home',
+        // Register main viewport panel
+        api.register('main-view', {
+            type: 'panel',
             component: HelloView,
+            label: 'Home',
+            icon: IconHome
         });
 
-        // Register sidebar
-        api.add({
-            panel: 'left',
-            id: 'nav',
-            label: 'Navigation',
+        // Register sidebar panel
+        api.register('sidebar', {
+            type: 'panel',
             component: Sidebar,
+            label: 'Navigation'
         });
-    },
 
-    active(api) {
-        // Show sidebar when plugin is active
-        api.showLeft(true);
-    },
-
-    inactive(api) {
-        // Optionally hide sidebar when switching away
-        // api.hideLeft();
+        // Register keyboard shortcuts
+        api.shortcut({
+            'ctrl+h': () => alert('Hello from shortcut!')
+        });
     },
 
     stop(api) {
@@ -127,6 +114,7 @@ webarcade dev
 ## What This Example Demonstrates
 
 ### Plugin Registration
+
 ```jsx
 export default plugin({
     id: 'hello-world',
@@ -136,50 +124,113 @@ export default plugin({
 });
 ```
 
-### Tab Registration
-```jsx
-api.add({
-    panel: 'tab',
-    label: 'Hello World',
-    icon: IconHome,
-});
-```
+### Panel Registration
 
-### Viewport Panel
 ```jsx
-api.add({
-    panel: 'viewport',
-    id: 'main',
-    label: 'Home',
+api.register('main-view', {
+    type: 'panel',
     component: HelloView,
+    label: 'Home',
+    icon: IconHome
 });
 ```
 
 ### Sidebar Panel
+
 ```jsx
-api.add({
-    panel: 'left',
-    id: 'nav',
-    label: 'Navigation',
+api.register('sidebar', {
+    type: 'panel',
     component: Sidebar,
+    label: 'Navigation'
 });
 ```
 
-### Lifecycle Hooks
+### Keyboard Shortcuts
+
 ```jsx
-active(api) {
-    api.showLeft(true);  // Show sidebar when active
-}
+api.shortcut({
+    'ctrl+h': () => alert('Hello from shortcut!')
+});
 ```
 
 ### SolidJS Reactivity
+
 ```jsx
 const [darkMode, setDarkMode] = createSignal(false);
 // Use: darkMode(), setDarkMode(!darkMode())
 ```
 
+## Adding Toolbar Buttons
+
+Extend the plugin with toolbar buttons:
+
+```jsx
+start(api) {
+    // ... panel registration
+
+    api.register('refresh-btn', {
+        type: 'toolbar',
+        icon: IconRefresh,
+        tooltip: 'Refresh',
+        onClick: () => location.reload()
+    });
+
+    api.register('settings-btn', {
+        type: 'toolbar',
+        icon: IconSettings,
+        tooltip: 'Settings',
+        onClick: () => openSettings()
+    });
+}
+```
+
+## Adding Menu Items
+
+Add a menu to the plugin:
+
+```jsx
+start(api) {
+    // ... panel registration
+
+    api.register('file-menu', {
+        type: 'menu',
+        label: 'File',
+        order: 1,
+        submenu: [
+            { id: 'new', label: 'New', shortcut: 'Ctrl+N', action: () => {} },
+            { id: 'open', label: 'Open', shortcut: 'Ctrl+O', action: () => {} },
+            { divider: true },
+            { id: 'exit', label: 'Exit', action: () => api.exit() }
+        ]
+    });
+}
+```
+
+## Adding Status Bar Items
+
+Add status information:
+
+```jsx
+start(api) {
+    // ... panel registration
+
+    api.register('status-ready', {
+        type: 'status',
+        component: () => <span class="text-success">Ready</span>,
+        align: 'left'
+    });
+
+    api.register('status-version', {
+        type: 'status',
+        component: () => <span class="opacity-50">v1.0.0</span>,
+        align: 'right'
+    });
+}
+```
+
 ## Next Steps
 
-- Add toolbar buttons with `api.toolbar()`
-- Add menu items with `api.menu()`
+- Add toolbar buttons with `api.register({ type: 'toolbar' })`
+- Add menu items with `api.register({ type: 'menu' })`
 - Try the [Full-Stack Plugin](/examples/full-stack) example
+- Learn about [Contracts](/api/registry) for cross-plugin communication

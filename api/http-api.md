@@ -6,11 +6,12 @@ Communicate with plugin Rust backends via HTTP.
 
 ### api()
 
-Make HTTP requests to plugin backends.
+Make HTTP requests to plugin backends. The `api` function is exported from the plugin module.
 
 ```jsx
 import { api } from '@/api/plugin';
 
+// Signature
 api(endpoint: string, options?: RequestInit): Promise<Response>
 ```
 
