@@ -789,8 +789,11 @@ export default plugin({
         });
 
         // Register UI
-        api.add({ panel: 'tab', label: 'Game' });
-        api.add({ panel: 'viewport', id: 'game', component: GameUI });
+        api.register('game-view', {
+            type: 'panel',
+            component: GameUI,
+            label: 'Game'
+        });
     }
 });
 ```

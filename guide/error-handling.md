@@ -524,14 +524,9 @@ export default plugin({
             });
         });
 
-        api.add({
-            panel: 'tab',
-            label: 'Data Viewer'
-        });
-
-        api.add({
-            panel: 'viewport',
-            id: 'main',
+        api.register('data-viewer', {
+            type: 'panel',
+            label: 'Data Viewer',
             component: () => (
                 <ErrorBoundary
                     fallback={(error, reset) => (

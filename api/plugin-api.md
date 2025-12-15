@@ -1,6 +1,6 @@
 # Plugin API
 
-The Plugin API is used to register UI components and control the application layout.
+The Plugin API is used to register UI components and control the application.
 
 ## Creating a Plugin
 
@@ -12,238 +12,185 @@ export default plugin({
     name: 'My Plugin',
     version: '1.0.0',
 
-    start(api) { /* ... */ },
-    active(api) { /* ... */ },
-    inactive(api) { /* ... */ },
-    stop(api) { /* ... */ }
+    start(api) { /* Called once when plugin loads */ },
+    stop(api) { /* Called when plugin unloads */ }
 });
 ```
 
-## api.add()
+## api.register()
 
-Register components to panels.
+Register components to the application.
 
 ```jsx
-api.add(options: AddOptions): void
+api.register(id: string, options: RegisterOptions): string
 ```
+
+Returns the full component ID (`pluginId:componentId`).
 
 ### Options
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `panel` | `'tab' \| 'viewport' \| 'left' \| 'right' \| 'bottom'` | Yes | Target panel |
-| `id` | `string` | For panels | Unique identifier |
-| `component` | `Component` | For panels | SolidJS component |
-| `label` | `string` | No | Tab/button label |
+| `type` | `'panel' \| 'toolbar' \| 'menu' \| 'status'` | Yes | Component type |
+| `component` | `Component` | For panel/status | SolidJS component |
+| `label` | `string` | No | Display label |
 | `icon` | `Component` | No | Icon component |
-| `visible` | `boolean` | No | Initial visibility (default: `true`) |
 | `order` | `number` | No | Sort order (default: `0`) |
-| `closable` | `boolean` | No | Can user close tab (default: `true`) |
-| `shared` | `boolean` | No | Share with other plugins (default: `false`) |
-| `start` | `(api) => void` | No | Called when panel created |
-| `active` | `(api) => void` | No | Called when plugin active |
-| `inactive` | `(api) => void` | No | Called when plugin inactive |
 
-### Examples
-
-```jsx
-// Plugin tab
-api.add({
-    panel: 'tab',
-    label: 'My Plugin',
-    icon: IconHome,
-});
-
-// Viewport
-api.add({
-    panel: 'viewport',
-    id: 'editor',
-    label: 'Editor',
-    component: EditorView,
-    closable: true,
-});
-
-// Left sidebar
-api.add({
-    panel: 'left',
-    id: 'explorer',
-    label: 'Explorer',
-    icon: IconFolder,
-    component: FileExplorer,
-});
-```
-
-## api.remove()
-
-Remove a registered component.
-
-```jsx
-api.remove(id: string): void
-```
-
-```jsx
-api.remove('file-viewer');
-```
-
-## Panel Visibility
-
-### Show/Hide Methods
-
-```jsx
-api.showLeft(visible: boolean): void
-api.showRight(visible: boolean): void
-api.showBottom(visible: boolean): void
-
-api.hideLeft(): void
-api.hideRight(): void
-api.hideBottom(): void
-
-api.toggleLeft(): void
-api.toggleRight(): void
-api.toggleBottom(): void
-```
-
-### Focus Methods
-
-```jsx
-api.focusViewport(id: string): void
-api.focusLeft(id: string): void
-api.focusRight(id: string): void
-api.focusBottom(id: string): void
-```
-
-## Toolbar
-
-### api.toolbarGroup()
-
-Create a toolbar button group.
-
-```jsx
-api.toolbarGroup(id: string, options: GroupOptions): void
-```
+### Panel Options
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `label` | `string` | Group label |
-| `order` | `number` | Sort order |
+| `closable` | `boolean` | Can user close this (default: `true`) |
+| `onMount` | `() => void` | Called when panel mounts |
+| `onUnmount` | `() => void` | Called when panel unmounts |
+| `onFocus` | `() => void` | Called when panel receives focus |
+| `onBlur` | `() => void` | Called when panel loses focus |
+| `contracts` | `object` | Contract definitions for discovery |
 
-```jsx
-api.toolbarGroup('file-group', { label: 'File', order: 1 });
-```
-
-### api.toolbar()
-
-Add a toolbar button.
-
-```jsx
-api.toolbar(id: string, options: ToolbarOptions): void
-```
+### Toolbar Options
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `icon` | `Component` | Button icon |
 | `tooltip` | `string` | Hover tooltip |
 | `group` | `string` | Group ID |
-| `order` | `number` | Sort order within group |
 | `onClick` | `() => void` | Click handler |
 | `active` | `() => boolean` | Active state (reactive) |
 | `disabled` | `() => boolean` | Disabled state (reactive) |
 | `separator` | `boolean` | Add separator after |
-| `component` | `Component` | Custom component instead of icon |
+
+### Menu Options
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `submenu` | `MenuItem[]` | Menu items |
+
+### Status Options
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `align` | `'left' \| 'right'` | Alignment (default: `'left'`) |
+| `priority` | `number` | Sort order within alignment |
+
+### Examples
 
 ```jsx
-api.toolbar('save', {
+// Panel
+api.register('editor', {
+    type: 'panel',
+    component: EditorView,
+    label: 'Editor',
+    icon: IconCode,
+    closable: true,
+    onMount: () => console.log('Mounted'),
+    contracts: {
+        provides: ['text-editor'],
+        accepts: ['file-selection'],
+        emits: ['file-saved']
+    }
+});
+
+// Toolbar button
+api.register('save-btn', {
+    type: 'toolbar',
     icon: IconSave,
     tooltip: 'Save (Ctrl+S)',
     group: 'file-group',
-    order: 1,
     onClick: () => saveFile(),
-    active: () => hasChanges(),
-    disabled: () => isReadOnly(),
+    disabled: () => isReadOnly()
 });
-```
 
-## Menu
-
-### api.menu()
-
-Add a top menu.
-
-```jsx
-api.menu(id: string, options: MenuOptions): void
-```
-
-| Property | Type | Description |
-|----------|------|-------------|
-| `label` | `string` | Menu label |
-| `order` | `number` | Sort order |
-| `submenu` | `MenuItem[]` | Menu items |
-
-### MenuItem
-
-| Property | Type | Description |
-|----------|------|-------------|
-| `id` | `string` | Unique ID |
-| `label` | `string` | Display label |
-| `icon` | `Component` | Optional icon |
-| `shortcut` | `string` | Keyboard shortcut display |
-| `action` | `() => void` | Click handler |
-| `submenu` | `MenuItem[]` | Nested submenu |
-| `divider` | `boolean` | Visual separator |
-
-```jsx
-api.menu('file', {
+// Menu
+api.register('file-menu', {
+    type: 'menu',
     label: 'File',
     order: 1,
     submenu: [
         { id: 'new', label: 'New', shortcut: 'Ctrl+N', action: () => newFile() },
         { id: 'open', label: 'Open', shortcut: 'Ctrl+O', action: () => openFile() },
         { divider: true },
-        {
-            id: 'export',
-            label: 'Export',
-            submenu: [
-                { id: 'pdf', label: 'As PDF', action: () => exportPDF() },
-                { id: 'png', label: 'As PNG', action: () => exportPNG() },
-            ]
-        },
+        { id: 'save', label: 'Save', shortcut: 'Ctrl+S', action: () => saveFile() }
     ]
 });
-```
 
-## Footer
-
-### api.footer()
-
-Add a footer component.
-
-```jsx
-api.footer(id: string, options: FooterOptions): void
-```
-
-| Property | Type | Description |
-|----------|------|-------------|
-| `component` | `Component` | Footer component |
-| `order` | `number` | Sort order |
-
-```jsx
-api.footer('status', {
-    component: () => <span class="text-success">Ready</span>,
-    order: 1,
+// Status bar
+api.register('line-info', {
+    type: 'status',
+    component: () => <span>Ln 1, Col 1</span>,
+    align: 'right',
+    priority: 100
 });
 ```
 
-## UI Visibility
+## api.unregister()
+
+Remove a registered component.
 
 ```jsx
-api.showToolbar(visible: boolean): void
-api.showMenu(visible: boolean): void
-api.showFooter(visible: boolean): void
-api.showTabs(visible: boolean): void          // Viewport tabs
-api.showPluginTabs(visible: boolean): void    // Plugin tab bar
+api.unregister(id: string): void
+```
 
-api.fullscreen(enabled: boolean): void
-api.toggleFullscreen(): void
+```jsx
+api.unregister('file-viewer');
+```
+
+## Slot Control
+
+Control component visibility with `api.slot()`.
+
+```jsx
+api.slot(id: string): SlotController
+```
+
+### SlotController Methods
+
+| Method | Description |
+|--------|-------------|
+| `show()` | Show the component |
+| `hide()` | Hide the component |
+| `toggle()` | Toggle visibility |
+| `focus()` | Focus the component |
+
+```jsx
+api.slot('explorer').show();
+api.slot('explorer').hide();
+api.slot('explorer').toggle();
+api.slot('explorer').focus();
+```
+
+## Layout Management
+
+Control the layout with `api.layout`.
+
+```jsx
+// Switch to a different layout
+api.layout.setActive('material-editor');
+
+// Go back to previous layout
+api.layout.back();
+
+// Check if can go back
+if (api.layout.canGoBack()) {
+    api.layout.back();
+}
+
+// Get current layout ID
+const currentId = api.layout.getActiveId();
+
+// Get all layouts
+const layouts = api.layout.getAll();
+
+// Register a custom layout
+api.layout.register('custom-layout', {
+    name: 'Custom Layout',
+    component: CustomLayoutComponent,
+    icon: IconLayout
+});
+
+// Layout visibility controls
+api.layout.fullscreen(true);
+api.layout.hideAll();
+api.layout.showAll();
 ```
 
 ## Keyboard Shortcuts
@@ -296,8 +243,6 @@ stop(api) {
 Shortcuts are automatically disabled when the user is typing in an input field, textarea, or code editor.
 :::
 
----
-
 ## Context Menu
 
 ### api.context()
@@ -316,7 +261,7 @@ Returns an unregister function to remove the menu item.
 |----------|------|----------|-------------|
 | `label` | `string` | Yes | Display text |
 | `action` | `(data, context) => void` | Yes | Click handler |
-| `context` | `string` | No | Where to show: `'viewport'`, `'global'` (default: `'global'`) |
+| `context` | `string` | No | Where to show (default: `'global'`) |
 | `icon` | `Component` | No | Icon component |
 | `order` | `number` | No | Sort order (lower = higher in menu) |
 | `separator` | `boolean` | No | Render as a separator line |
@@ -356,41 +301,262 @@ start(api) {
 }
 ```
 
-::: tip
-Context menu items are automatically cleaned up when your plugin is disabled.
-:::
+## Events
 
----
+### api.emit()
 
-## Shared Components
-
-### api.addShared()
-
-Add a component shared by another plugin.
+Emit an event for other plugins to receive.
 
 ```jsx
-api.addShared(sharedId: string, options: SharedOptions): void
+api.emit(event: string, data?: any): void
 ```
 
 ```jsx
-api.addShared('file-manager:explorer', {
-    panel: 'left',
-    label: 'Files',
-    order: 1,
+api.emit('file-saved', { path: '/path/to/file.txt' });
+```
+
+### api.on()
+
+Listen for events from other plugins.
+
+```jsx
+api.on(event: string, handler: (data) => void): Function
+```
+
+Returns an unsubscribe function.
+
+```jsx
+const unsubscribe = api.on('file-saved', (data) => {
+    console.log('File saved:', data.path);
+});
+
+// Later: unsubscribe()
+```
+
+## Contract Discovery
+
+### api.findByContract()
+
+Find components by their contracts.
+
+```jsx
+api.findByContract(query: ContractQuery): Component[]
+```
+
+```jsx
+// Find all file browsers
+const browsers = api.findByContract({ provides: 'file-browser' });
+
+// Find components that accept file selection
+const editors = api.findByContract({ accepts: 'file-selection' });
+
+// Find components that emit file events
+const emitters = api.findByContract({ emits: 'file-opened' });
+```
+
+## Services
+
+### api.provide()
+
+Provide a service for other plugins to use.
+
+```jsx
+api.provide(name: string, service: any): void
+```
+
+```jsx
+api.provide('audio', {
+    play: (sound) => { /* ... */ },
+    stop: () => { /* ... */ },
+    setVolume: (v) => { /* ... */ }
 });
 ```
 
-### api.useShared()
+### api.use()
 
-Get a shared component's configuration.
+Use a service provided by another plugin.
 
 ```jsx
-api.useShared(sharedId: string): PanelConfig | null
+api.use(name: string): Promise<any>
 ```
 
 ```jsx
-const explorer = api.useShared('file-manager:explorer');
-if (explorer) {
-    const FileExplorer = explorer.component;
+const audio = await api.use('audio');
+audio.play('click');
+```
+
+## Shared Store
+
+### api.set()
+
+Set a value in the shared store.
+
+```jsx
+api.set(key: string, value: any): void
+```
+
+```jsx
+api.set('settings.theme', 'dark');
+api.set('player.health', 100);
+```
+
+### api.get()
+
+Get a value from the shared store.
+
+```jsx
+api.get(key: string, defaultValue?: any): any
+```
+
+```jsx
+const theme = api.get('settings.theme', 'light');
+```
+
+### api.has()
+
+Check if a key exists in the store.
+
+```jsx
+api.has(key: string): boolean
+```
+
+### api.watch()
+
+Watch for changes to a value.
+
+```jsx
+api.watch(key: string, handler: (value) => void): Function
+```
+
+Returns an unsubscribe function.
+
+```jsx
+const unsubscribe = api.watch('settings.theme', (theme) => {
+    applyTheme(theme);
+});
+```
+
+### api.selector()
+
+Get a reactive signal for use in SolidJS components.
+
+```jsx
+api.selector(key: string, defaultValue?: any): Accessor
+```
+
+```jsx
+function ThemeDisplay() {
+    const theme = api.selector('settings.theme', 'light');
+    return <div>Current theme: {theme()}</div>;
 }
+```
+
+## HTTP Requests
+
+### api()
+
+Make HTTP requests to plugin backends.
+
+```jsx
+import { api } from '@/api/plugin';
+
+api(endpoint: string, options?: RequestInit): Promise<Response>
+```
+
+```jsx
+// GET request
+const response = await api('my-plugin/data');
+const data = await response.json();
+
+// POST request
+await api('my-plugin/data', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: 'test' })
+});
+```
+
+## Complete Example
+
+```jsx
+import { plugin } from '@/api/plugin';
+import { createSignal } from 'solid-js';
+import { IconCode, IconSave, IconFolder } from '@tabler/icons-solidjs';
+
+const [files, setFiles] = createSignal([]);
+
+function Editor() {
+    return <div class="p-4">Editor content</div>;
+}
+
+function FileTree() {
+    return <div class="p-2">File tree</div>;
+}
+
+export default plugin({
+    id: 'code-editor',
+    name: 'Code Editor',
+    version: '1.0.0',
+
+    start(api) {
+        // Register panels
+        api.register('editor', {
+            type: 'panel',
+            component: Editor,
+            label: 'Editor',
+            icon: IconCode,
+            contracts: {
+                provides: ['text-editor'],
+                accepts: ['file-selection']
+            }
+        });
+
+        api.register('file-tree', {
+            type: 'panel',
+            component: FileTree,
+            label: 'Files',
+            icon: IconFolder
+        });
+
+        // Register toolbar
+        api.register('save-btn', {
+            type: 'toolbar',
+            icon: IconSave,
+            tooltip: 'Save (Ctrl+S)',
+            onClick: () => saveFile()
+        });
+
+        // Register menu
+        api.register('file-menu', {
+            type: 'menu',
+            label: 'File',
+            submenu: [
+                { id: 'save', label: 'Save', shortcut: 'Ctrl+S', action: () => saveFile() }
+            ]
+        });
+
+        // Register status
+        api.register('status', {
+            type: 'status',
+            component: () => <span>Ready</span>,
+            align: 'left'
+        });
+
+        // Register shortcuts
+        api.shortcut({
+            'ctrl+s': () => saveFile(),
+            'ctrl+b': () => api.slot('file-tree').toggle()
+        });
+
+        // Provide service
+        api.provide('editor', {
+            openFile: (path) => openFile(path),
+            save: () => saveFile()
+        });
+    },
+
+    stop(api) {
+        // Cleanup
+    }
+});
 ```

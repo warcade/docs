@@ -335,15 +335,11 @@ window.__WEBARCADE__.invoke('window:minimize');
 Plugins are loaded on-demand:
 
 ```js
-// Plugin tab clicked
-api.add({
-    panel: 'tab',
+// Lazy load heavy components
+api.register('heavy-panel', {
+    type: 'panel',
     label: 'Heavy Plugin',
-    onActivate: async () => {
-        // Component loaded only when tab is clicked
-        const { HeavyComponent } = await import('./heavy.jsx');
-        return HeavyComponent;
-    }
+    component: lazy(() => import('./heavy.jsx'))  // Loaded on demand
 });
 ```
 

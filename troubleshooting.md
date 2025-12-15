@@ -193,7 +193,7 @@ webarcade build --all
 **Checklist:**
 1. Is the plugin built? Check `build/plugins/plugin-name.js` exists
 2. Is it enabled? Check settings
-3. Does it have a tab? Check `api.add({ panel: 'tab', ... })` in start()
+3. Does it register a panel? Check `api.register()` in start()
 4. Check console for errors
 
 ---
@@ -321,8 +321,11 @@ const HeavyComponent = lazy(() => import('./HeavyComponent'));
 ```jsx
 start(api) {
     // Register UI immediately
-    api.add({ panel: 'tab', label: 'My Plugin' });
-    api.add({ panel: 'viewport', id: 'main', component: MainView });
+    api.register('main-view', {
+        type: 'panel',
+        component: MainView,
+        label: 'My Plugin'
+    });
 
     // Defer heavy initialization
     setTimeout(() => {

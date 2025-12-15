@@ -340,24 +340,11 @@ export default plugin({
 
     start(api) {
         // Initialize plugin
-        api.add({
-            panel: 'tab',
-            label: 'My Plugin',
-        });
-
-        api.add({
-            panel: 'viewport',
-            id: 'main',
+        api.register('main-view', {
+            type: 'panel',
             component: MainView,
+            label: 'My Plugin'
         });
-    },
-
-    active(api) {
-        // Called when plugin becomes active
-    },
-
-    inactive(api) {
-        // Called when plugin becomes inactive
     },
 
     stop(api) {

@@ -26,7 +26,7 @@ Your new project looks like this:
 my-app/
 ├── src/                    # Frontend source code
 │   ├── api/               # Plugin APIs (don't modify)
-│   ├── panels/            # Panel components (don't modify)
+│   ├── components/        # UI components (don't modify)
 │   └── ...
 ├── app/                    # Desktop runtime
 │   ├── src/               # Rust source (don't modify)
@@ -41,10 +41,10 @@ my-app/
 
 | Folder | What it's for | Do you edit it? |
 |--------|---------------|-----------------|
-| `plugins/` | Your plugin code | ✅ Yes |
-| `app/Cargo.toml` | App name, icon, metadata | ✅ Yes |
-| `src/` | Core frontend code | ❌ No |
-| `app/src/` | Core runtime code | ❌ No |
+| `plugins/` | Your plugin code | Yes |
+| `app/Cargo.toml` | App name, icon, metadata | Yes |
+| `src/` | Core frontend code | No |
+| `app/src/` | Core runtime code | No |
 
 ## Step 3: Run the App
 
@@ -89,12 +89,13 @@ export default plugin({
 });
 ```
 
-## Step 5: Add a Tab and Content
+## Step 5: Add Content
 
 Edit `plugins/my-plugin/index.jsx`:
 
 ```jsx
 import { plugin } from '@/api/plugin';
+import { IconHome } from '@tabler/icons-solidjs';
 
 // A simple component that displays "Hello World"
 function HelloWorld() {
@@ -116,17 +117,12 @@ export default plugin({
     version: '1.0.0',
 
     start(api) {
-        // Add a tab to the plugin tab bar
-        api.add({
-            panel: 'tab',
-            label: 'My Plugin',
-        });
-
-        // Add content to the main viewport
-        api.add({
-            panel: 'viewport',
-            id: 'main',
+        // Register a panel component
+        api.register('main-view', {
+            type: 'panel',
             component: HelloWorld,
+            label: 'My Plugin',
+            icon: IconHome
         });
     }
 });
@@ -146,7 +142,7 @@ Now restart the app (press `Ctrl+C` in the terminal running `webarcade dev`, the
 webarcade dev
 ```
 
-Click on the "My Plugin" tab - you should see your "Hello, World!" message!
+You should see your "Hello, World!" message!
 
 ## Step 7: Add Interactivity
 
@@ -155,6 +151,7 @@ Let's add a button that counts clicks. Update your plugin:
 ```jsx
 import { plugin } from '@/api/plugin';
 import { createSignal } from 'solid-js';
+import { IconHome } from '@tabler/icons-solidjs';
 
 function Counter() {
     // createSignal creates reactive state
@@ -185,15 +182,11 @@ export default plugin({
     version: '1.0.0',
 
     start(api) {
-        api.add({
-            panel: 'tab',
-            label: 'My Plugin',
-        });
-
-        api.add({
-            panel: 'viewport',
-            id: 'main',
+        api.register('main-view', {
+            type: 'panel',
             component: Counter,
+            label: 'My Plugin',
+            icon: IconHome
         });
     }
 });
@@ -215,6 +208,7 @@ Let's add a sidebar panel:
 ```jsx
 import { plugin } from '@/api/plugin';
 import { createSignal } from 'solid-js';
+import { IconHome, IconSettings } from '@tabler/icons-solidjs';
 
 const [count, setCount] = createSignal(0);
 
@@ -270,29 +264,21 @@ export default plugin({
     version: '1.0.0',
 
     start(api) {
-        api.add({
-            panel: 'tab',
-            label: 'My Plugin',
-        });
-
-        api.add({
-            panel: 'viewport',
-            id: 'main',
+        // Main content panel
+        api.register('main-view', {
+            type: 'panel',
             component: MainContent,
+            label: 'Counter',
+            icon: IconHome
         });
 
-        // Add a left sidebar
-        api.add({
-            panel: 'left',
-            id: 'controls',
-            label: 'Controls',
+        // Sidebar panel
+        api.register('controls', {
+            type: 'panel',
             component: Sidebar,
+            label: 'Controls',
+            icon: IconSettings
         });
-    },
-
-    // Show the sidebar when this plugin becomes active
-    active(api) {
-        api.showLeft(true);
     }
 });
 ```
@@ -322,24 +308,20 @@ start(api) {
     // Register all your UI components here
 }
 
-active(api) {
-    // Runs each time user switches TO this plugin
-    // Show/hide panels, refresh data
+stop(api) {
+    // Runs when plugin is unloaded
+    // Clean up resources
 }
 ```
 
-### 3. Registering Panels
+### 3. Registering Components
 
 ```jsx
-api.add({
-    panel: 'tab',         // Where to add (tab bar)
-    label: 'My Plugin',   // Text to display
-});
-
-api.add({
-    panel: 'viewport',    // Where to add (main area)
-    id: 'main',          // Unique ID for this panel
+api.register('main-view', {
+    type: 'panel',        // Component type
     component: Counter,   // SolidJS component to render
+    label: 'Counter',     // Display label
+    icon: IconHome        // Optional icon
 });
 ```
 
@@ -360,7 +342,7 @@ You've created a working plugin! Here are your next steps:
 
 | Want to... | Read this |
 |------------|-----------|
-| Register components | [Component Registry](/api/registry) |
+| Learn about component types | [Component System](/plugins/panels) |
 | Add toolbar buttons | [Component Registry](/api/registry#toolbar-components) |
 | Add a Rust backend | [Full-Stack Plugin](/examples/full-stack) |
 | Understand the full API | [Plugin API Reference](/api/plugin-api) |

@@ -568,8 +568,11 @@ export default plugin({
         });
 
         // Register panels...
-        api.add({ panel: 'tab', label: 'Desktop Demo' });
-        api.add({ panel: 'viewport', id: 'main', component: MainView });
+        api.register('main-view', {
+            type: 'panel',
+            component: MainView,
+            label: 'Desktop Demo'
+        });
     },
 
     stop(api) {

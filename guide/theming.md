@@ -494,8 +494,12 @@ export default plugin({
     version: '1.0.0',
 
     start(api) {
-        api.add({ panel: 'tab', label: 'Themes', icon: IconPalette });
-        api.add({ panel: 'viewport', id: 'main', component: ThemeSettings });
+        api.register('theme-settings', {
+            type: 'panel',
+            component: ThemeSettings,
+            label: 'Themes',
+            icon: IconPalette
+        });
     }
 });
 ```
