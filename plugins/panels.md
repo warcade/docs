@@ -1,125 +1,36 @@
-# Panel System
+# Component System
 
-The panel system is how you add UI to your plugin. This page explains every panel type and option.
+The component system is how you add UI to your plugin. This page explains the component types and how to register them.
 
-## Panel Layout
+## Component Types
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Menu Bar (api.menu)                       │
-├─────────────────────────────────────────────────────────────┤
-│                    Toolbar (api.toolbar)                     │
-├─────────────────────────────────────────────────────────────┤
-│                    Plugin Tabs (panel: 'tab')               │
-├──────────┬─────────────────────────────┬────────────────────┤
-│          │                             │                    │
-│  LEFT    │         VIEWPORT            │      RIGHT         │
-│  PANEL   │      (panel: 'viewport')    │      PANEL         │
-│          │                             │                    │
-│ (panel:  │    Main content area        │   (panel:          │
-│  'left') │    Can have multiple tabs   │    'right')        │
-│          │                             │                    │
-├──────────┴─────────────────────────────┴────────────────────┤
-│                 BOTTOM PANEL (panel: 'bottom')              │
-├─────────────────────────────────────────────────────────────┤
-│                    Footer (api.footer)                      │
-└─────────────────────────────────────────────────────────────┘
-```
+WebArcade supports four component types:
 
-## Panel Types
+| Type | Purpose | Example |
+|------|---------|---------|
+| `panel` | Content areas (sidebars, viewports) | File explorer, editor, properties |
+| `toolbar` | Toolbar buttons | Save, undo, run |
+| `menu` | Top menu items | File menu, Edit menu |
+| `status` | Status bar items | Line number, git branch |
 
-| Panel Type | Location | Purpose | Multiple Tabs? |
-|------------|----------|---------|----------------|
-| `tab` | Top tab bar | Plugin selector | No (one per plugin) |
-| `viewport` | Center | Main content | Yes |
-| `left` | Left sidebar | Navigation, files | Yes |
-| `right` | Right sidebar | Properties, details | Yes |
-| `bottom` | Bottom area | Console, output | Yes |
-
-## Adding Panels with `api.add()`
+## Registering Components with `api.register()`
 
 ### Basic Syntax
 
 ```jsx
-api.add({
-    panel: 'viewport',      // Required: where to add
-    id: 'my-panel',        // Required: unique identifier
-    component: MyComponent, // Required: what to render
+api.register('component-id', {
+    type: 'panel',           // Required: component type
+    component: MyComponent,  // Required for panel/status
+    label: 'My Panel',       // Display label
     // ... other options
 });
 ```
 
-### All Options
+## Panel Components
 
-```jsx
-api.add({
-    // Required
-    panel: 'viewport',         // 'tab' | 'viewport' | 'left' | 'right' | 'bottom'
-    id: 'unique-id',          // Unique identifier (not needed for 'tab')
-    component: MyComponent,    // SolidJS component (not needed for 'tab')
+Panels are the primary content containers.
 
-    // Display
-    label: 'Tab Label',       // Text shown in tab
-    icon: IconComponent,      // Icon shown in tab (optional)
-
-    // Behavior
-    visible: true,            // Initial visibility (default: true)
-    order: 0,                 // Sort order (lower = first)
-    closable: true,           // Can user close this tab? (default: true)
-    shared: false,            // Share with other plugins? (default: false)
-
-    // Lifecycle hooks (optional)
-    start: (api) => {},       // Called when panel first created
-    active: (api) => {},      // Called when plugin becomes active
-    inactive: (api) => {},    // Called when plugin becomes inactive
-});
-```
-
-## Plugin Tab
-
-Every plugin needs a tab to appear in the tab bar:
-
-```jsx
-api.add({
-    panel: 'tab',
-    label: 'My Plugin',      // Required: tab text
-    icon: IconHome,          // Optional: tab icon
-    order: 1,                // Optional: position in tab bar
-});
-```
-
-### Tab with Icon
-
-```jsx
-import { IconCode } from '@tabler/icons-solidjs';
-
-api.add({
-    panel: 'tab',
-    label: 'Editor',
-    icon: IconCode,
-});
-```
-
-### Tab Order
-
-Control the order of tabs:
-
-```jsx
-// First tab
-api.add({ panel: 'tab', label: 'Files', order: 1 });
-
-// Second tab
-api.add({ panel: 'tab', label: 'Editor', order: 2 });
-
-// Third tab
-api.add({ panel: 'tab', label: 'Settings', order: 3 });
-```
-
-## Viewport Panel
-
-The main content area. Supports multiple tabs.
-
-### Single Viewport
+### Basic Panel
 
 ```jsx
 function MainView() {
@@ -130,254 +41,256 @@ function MainView() {
     );
 }
 
-api.add({
-    panel: 'viewport',
-    id: 'main',
-    label: 'Main',           // Tab label (optional if only one viewport)
+api.register('main-view', {
+    type: 'panel',
     component: MainView,
+    label: 'Main',
+    icon: IconHome
 });
 ```
 
-### Multiple Viewport Tabs
+### Panel Options
 
 ```jsx
-// Tab 1: Editor
-api.add({
-    panel: 'viewport',
-    id: 'editor',
+api.register('editor', {
+    type: 'panel',
+    component: EditorView,
     label: 'Editor',
     icon: IconCode,
-    component: EditorView,
-    order: 1,
-});
+    order: 1,                  // Sort order (lower = first)
+    closable: true,            // Can user close this? (default: true)
 
-// Tab 2: Preview
-api.add({
-    panel: 'viewport',
-    id: 'preview',
-    label: 'Preview',
-    icon: IconEye,
-    component: PreviewView,
-    order: 2,
-});
+    // Lifecycle hooks
+    onMount: () => console.log('Mounted'),
+    onUnmount: () => console.log('Unmounted'),
+    onFocus: () => console.log('Focused'),
+    onBlur: () => console.log('Blurred'),
 
-// Tab 3: Settings
-api.add({
-    panel: 'viewport',
-    id: 'settings',
-    label: 'Settings',
-    icon: IconSettings,
-    component: SettingsView,
-    order: 3,
+    // Contracts for cross-plugin discovery
+    contracts: {
+        provides: ['text-editor'],
+        accepts: ['file-selection'],
+        emits: ['file-saved']
+    }
 });
 ```
 
-### Closable Tabs
-
-Allow users to close tabs:
+### Multiple Panels
 
 ```jsx
-api.add({
-    panel: 'viewport',
-    id: 'document-1',
-    label: 'Document.txt',
-    component: DocumentView,
-    closable: true,          // User can close this tab
-});
-```
-
-### Non-Closable Tabs
-
-Prevent users from closing essential tabs:
-
-```jsx
-api.add({
-    panel: 'viewport',
-    id: 'welcome',
-    label: 'Welcome',
-    component: WelcomeView,
-    closable: false,         // User cannot close this tab
-});
-```
-
-## Left Panel (Sidebar)
-
-Left sidebar for navigation, file trees, etc.
-
-```jsx
-function FileExplorer() {
-    return (
-        <div class="p-2">
-            <div class="font-bold mb-2">Files</div>
-            <ul class="menu">
-                <li><a>index.jsx</a></li>
-                <li><a>styles.css</a></li>
-                <li><a>utils.js</a></li>
-            </ul>
-        </div>
-    );
-}
-
-api.add({
-    panel: 'left',
-    id: 'files',
+// File explorer
+api.register('files', {
+    type: 'panel',
+    component: FileExplorer,
     label: 'Files',
     icon: IconFolder,
-    component: FileExplorer,
-});
-```
-
-### Multiple Left Panel Tabs
-
-```jsx
-// Tab 1: File explorer
-api.add({
-    panel: 'left',
-    id: 'files',
-    label: 'Files',
-    icon: IconFolder,
-    component: FileExplorer,
-    order: 1,
+    order: 1
 });
 
-// Tab 2: Search
-api.add({
-    panel: 'left',
-    id: 'search',
+// Search
+api.register('search', {
+    type: 'panel',
+    component: SearchPanel,
     label: 'Search',
     icon: IconSearch,
-    component: SearchPanel,
-    order: 2,
+    order: 2
 });
 
-// Tab 3: Git
-api.add({
-    panel: 'left',
-    id: 'git',
-    label: 'Git',
-    icon: IconGitBranch,
-    component: GitPanel,
-    order: 3,
-});
-```
-
-## Right Panel (Sidebar)
-
-Right sidebar for properties, details, etc.
-
-```jsx
-function PropertiesPanel() {
-    return (
-        <div class="p-2">
-            <div class="font-bold mb-2">Properties</div>
-            <div class="space-y-2">
-                <div>
-                    <label class="text-sm opacity-70">Width</label>
-                    <input class="input input-sm input-bordered w-full" value="100" />
-                </div>
-                <div>
-                    <label class="text-sm opacity-70">Height</label>
-                    <input class="input input-sm input-bordered w-full" value="200" />
-                </div>
-            </div>
-        </div>
-    );
-}
-
-api.add({
-    panel: 'right',
-    id: 'properties',
+// Properties
+api.register('properties', {
+    type: 'panel',
+    component: PropertiesPanel,
     label: 'Properties',
     icon: IconSettings,
-    component: PropertiesPanel,
+    order: 3
 });
 ```
 
-## Bottom Panel
+## Toolbar Components
 
-Bottom area for console, output, problems, etc.
+Toolbar items are buttons or custom components in the toolbar.
+
+### Toolbar Button
 
 ```jsx
-function ConsolePanel() {
+api.register('save-btn', {
+    type: 'toolbar',
+    icon: IconSave,
+    label: 'Save',
+    tooltip: 'Save file (Ctrl+S)',
+    onClick: () => saveFile()
+});
+```
+
+### Toolbar Options
+
+```jsx
+api.register('run-btn', {
+    type: 'toolbar',
+    icon: IconPlayerPlay,
+    label: 'Run',
+    tooltip: 'Run project',
+    group: 'execution',        // Group buttons together
+    order: 1,                  // Order within group
+    onClick: () => runProject(),
+    disabled: () => !hasProject(),  // Dynamic disable state
+    active: () => isRunning(),      // Dynamic active state
+    separator: true            // Add separator after this button
+});
+```
+
+### Custom Toolbar Component
+
+```jsx
+function ZoomSlider() {
+    const [zoom, setZoom] = createSignal(100);
     return (
-        <div class="h-full bg-base-300 p-2 font-mono text-sm overflow-auto">
-            <div class="text-success">&gt; Build started...</div>
-            <div class="text-success">&gt; Compiling plugin...</div>
-            <div class="text-success">&gt; Build complete!</div>
-        </div>
+        <input
+            type="range"
+            min="50"
+            max="200"
+            value={zoom()}
+            onInput={(e) => setZoom(e.target.value)}
+        />
     );
 }
 
-api.add({
-    panel: 'bottom',
-    id: 'console',
-    label: 'Console',
-    icon: IconTerminal,
-    component: ConsolePanel,
+api.register('zoom-control', {
+    type: 'toolbar',
+    component: ZoomSlider,
+    group: 'view'
 });
 ```
 
-### Multiple Bottom Panel Tabs
+## Menu Components
+
+Menu items for the top menu bar.
+
+### Simple Menu
 
 ```jsx
-// Console
-api.add({
-    panel: 'bottom',
-    id: 'console',
-    label: 'Console',
-    icon: IconTerminal,
-    component: ConsolePanel,
+api.register('file-menu', {
+    type: 'menu',
+    label: 'File',
     order: 1,
-});
-
-// Output
-api.add({
-    panel: 'bottom',
-    id: 'output',
-    label: 'Output',
-    icon: IconFileText,
-    component: OutputPanel,
-    order: 2,
-});
-
-// Problems
-api.add({
-    panel: 'bottom',
-    id: 'problems',
-    label: 'Problems',
-    icon: IconAlertCircle,
-    component: ProblemsPanel,
-    order: 3,
+    submenu: [
+        { id: 'new', label: 'New', shortcut: 'Ctrl+N', action: () => newFile() },
+        { id: 'open', label: 'Open', shortcut: 'Ctrl+O', action: () => openFile() },
+        { divider: true },
+        { id: 'save', label: 'Save', shortcut: 'Ctrl+S', action: () => saveFile() },
+        { id: 'exit', label: 'Exit', action: () => closeApp() }
+    ]
 });
 ```
 
-## Panel Visibility
-
-### Show/Hide Panels
+### Nested Submenu
 
 ```jsx
-// Show panels
-api.showLeft(true);
-api.showRight(true);
-api.showBottom(true);
-
-// Hide panels
-api.showLeft(false);
-api.showRight(false);
-api.showBottom(false);
-
-// Shorthand to hide
-api.hideLeft();
-api.hideRight();
-api.hideBottom();
-
-// Toggle
-api.toggleLeft();
-api.toggleRight();
-api.toggleBottom();
+api.register('edit-menu', {
+    type: 'menu',
+    label: 'Edit',
+    order: 2,
+    submenu: [
+        { id: 'undo', label: 'Undo', shortcut: 'Ctrl+Z', action: () => undo() },
+        { id: 'redo', label: 'Redo', shortcut: 'Ctrl+Y', action: () => redo() },
+        { divider: true },
+        {
+            id: 'clipboard',
+            label: 'Clipboard',
+            submenu: [
+                { id: 'cut', label: 'Cut', shortcut: 'Ctrl+X', action: () => cut() },
+                { id: 'copy', label: 'Copy', shortcut: 'Ctrl+C', action: () => copy() },
+                { id: 'paste', label: 'Paste', shortcut: 'Ctrl+V', action: () => paste() }
+            ]
+        }
+    ]
+});
 ```
 
-### Using in Lifecycle Hooks
+### Menu Item with Icon
+
+```jsx
+api.register('view-menu', {
+    type: 'menu',
+    label: 'View',
+    order: 3,
+    submenu: [
+        { id: 'explorer', label: 'Explorer', icon: IconFolder, action: () => toggleExplorer() },
+        { id: 'terminal', label: 'Terminal', icon: IconTerminal, action: () => toggleTerminal() }
+    ]
+});
+```
+
+## Status Components
+
+Status bar items displayed at the bottom of the window.
+
+### Simple Status
+
+```jsx
+api.register('status-ready', {
+    type: 'status',
+    component: () => <span class="text-success">Ready</span>,
+    align: 'left'
+});
+```
+
+### Dynamic Status
+
+```jsx
+function LineInfo() {
+    const [line, setLine] = createSignal(1);
+    const [col, setCol] = createSignal(1);
+
+    // Subscribe to editor cursor changes
+    onMount(() => {
+        editor.on('cursor', (pos) => {
+            setLine(pos.line);
+            setCol(pos.col);
+        });
+    });
+
+    return <span>Ln {line()}, Col {col()}</span>;
+}
+
+api.register('line-info', {
+    type: 'status',
+    component: LineInfo,
+    align: 'right',
+    priority: 100  // Higher = further right
+});
+```
+
+### Status Options
+
+```jsx
+api.register('git-branch', {
+    type: 'status',
+    component: GitBranchIndicator,
+    align: 'left',      // 'left' or 'right'
+    priority: 50        // Sort order within alignment
+});
+```
+
+## Slot Control
+
+Control component visibility with `api.slot()`:
+
+```jsx
+// Show a component
+api.slot('files').show();
+
+// Hide a component
+api.slot('files').hide();
+
+// Toggle visibility
+api.slot('files').toggle();
+
+// Focus a component
+api.slot('files').focus();
+```
+
+### Using Slot Control
 
 ```jsx
 export default plugin({
@@ -386,160 +299,70 @@ export default plugin({
     version: '1.0.0',
 
     start(api) {
-        // Register panels...
-    },
+        api.register('explorer', {
+            type: 'panel',
+            component: Explorer,
+            label: 'Explorer'
+        });
 
-    active(api) {
-        // Show panels when plugin becomes active
-        api.showLeft(true);
-        api.showBottom(true);
-        api.hideRight();  // Hide right panel
-    },
-
-    inactive(api) {
-        // Optionally hide panels when switching away
-        // api.hideBottom();
+        api.register('toggle-explorer', {
+            type: 'toolbar',
+            icon: IconFolder,
+            tooltip: 'Toggle Explorer',
+            onClick: () => api.slot('explorer').toggle()
+        });
     }
 });
 ```
 
-## Focusing Panels
+## Unregistering Components
 
-Switch to a specific tab within a panel:
-
-```jsx
-// Focus a viewport tab
-api.focusViewport('editor');
-
-// Focus a left panel tab
-api.focusLeft('files');
-
-// Focus a right panel tab
-api.focusRight('properties');
-
-// Focus a bottom panel tab
-api.focusBottom('console');
-```
-
-### Example: Open File in Editor
+Remove components when no longer needed:
 
 ```jsx
-function openFile(filename) {
-    // Add a new viewport tab for this file
-    api.add({
-        panel: 'viewport',
-        id: `file-${filename}`,
-        label: filename,
-        component: () => <FileEditor filename={filename} />,
-        closable: true,
-    });
-
-    // Switch to the new tab
-    api.focusViewport(`file-${filename}`);
-}
-```
-
-## Removing Panels
-
-Remove a panel by its ID:
-
-```jsx
-// Remove a panel
-api.remove('file-document.txt');
+// Unregister by ID
+api.unregister('temp-panel');
 
 // Example: Close file tab
 function closeFile(filename) {
-    api.remove(`file-${filename}`);
+    api.unregister(`file-${filename}`);
 }
 ```
 
-## Dynamic Panels
+## Dynamic Components
 
-Add and remove panels at runtime:
+Add and remove components at runtime:
 
 ```jsx
-import { createSignal, For } from 'solid-js';
-
 const [openFiles, setOpenFiles] = createSignal([]);
 
-function FileList() {
-    const addFile = (name) => {
-        // Add to our list
-        setOpenFiles([...openFiles(), name]);
+function openFile(filename) {
+    // Add to state
+    setOpenFiles([...openFiles(), filename]);
 
-        // Add a viewport tab
-        api.add({
-            panel: 'viewport',
-            id: `file-${name}`,
-            label: name,
-            component: () => <FileEditor name={name} />,
-            closable: true,
-        });
+    // Register a new panel
+    api.register(`file-${filename}`, {
+        type: 'panel',
+        component: () => <FileEditor filename={filename} />,
+        label: filename,
+        closable: true,
+        onUnmount: () => {
+            // Remove from state when closed
+            setOpenFiles(openFiles().filter(f => f !== filename));
+        }
+    });
 
-        // Focus it
-        api.focusViewport(`file-${name}`);
-    };
-
-    const closeFile = (name) => {
-        // Remove from our list
-        setOpenFiles(openFiles().filter(f => f !== name));
-
-        // Remove the viewport tab
-        api.remove(`file-${name}`);
-    };
-
-    return (
-        <div class="p-2">
-            <For each={openFiles()}>
-                {(file) => (
-                    <div class="flex justify-between items-center">
-                        <span>{file}</span>
-                        <button onClick={() => closeFile(file)}>×</button>
-                    </div>
-                )}
-            </For>
-        </div>
-    );
+    // Focus the new panel
+    api.slot(`file-${filename}`).focus();
 }
-```
-
-## Panel Lifecycle Hooks
-
-Each panel can have its own lifecycle hooks:
-
-```jsx
-api.add({
-    panel: 'viewport',
-    id: 'editor',
-    label: 'Editor',
-    component: EditorView,
-
-    // Called when the panel is first created
-    start(api) {
-        console.log('Editor panel created');
-    },
-
-    // Called when the plugin becomes active
-    active(api) {
-        console.log('Editor is now visible');
-        // Refresh data, start animations, etc.
-    },
-
-    // Called when the plugin becomes inactive
-    inactive(api) {
-        console.log('Editor is now hidden');
-        // Pause operations, save state, etc.
-    }
-});
 ```
 
 ## Complete Example
 
 ```jsx
 import { plugin } from '@/api/plugin';
-import { IconCode, IconFolder, IconTerminal, IconSettings } from '@tabler/icons-solidjs';
+import { IconCode, IconFolder, IconTerminal, IconSettings, IconSave } from '@tabler/icons-solidjs';
 
-// Components
 function EditorView() {
     return <div class="p-4">Editor content here</div>;
 }
@@ -552,64 +375,69 @@ function ConsolePanel() {
     return <div class="p-2 font-mono">Console output here</div>;
 }
 
-function PropertiesPanel() {
-    return <div class="p-2">Properties here</div>;
-}
-
 export default plugin({
     id: 'code-editor',
     name: 'Code Editor',
     version: '1.0.0',
 
     start(api) {
-        // Plugin tab
-        api.add({
-            panel: 'tab',
-            label: 'Editor',
-            icon: IconCode,
-        });
-
-        // Main viewport
-        api.add({
-            panel: 'viewport',
-            id: 'editor',
-            label: 'Editor',
+        // Panels
+        api.register('editor', {
+            type: 'panel',
             component: EditorView,
+            label: 'Editor',
+            icon: IconCode
         });
 
-        // Left sidebar: File explorer
-        api.add({
-            panel: 'left',
-            id: 'files',
-            label: 'Files',
-            icon: IconFolder,
+        api.register('files', {
+            type: 'panel',
             component: FileExplorer,
+            label: 'Files',
+            icon: IconFolder
         });
 
-        // Right sidebar: Properties
-        api.add({
-            panel: 'right',
-            id: 'properties',
-            label: 'Properties',
-            icon: IconSettings,
-            component: PropertiesPanel,
-        });
-
-        // Bottom panel: Console
-        api.add({
-            panel: 'bottom',
-            id: 'console',
-            label: 'Console',
-            icon: IconTerminal,
+        api.register('console', {
+            type: 'panel',
             component: ConsolePanel,
+            label: 'Console',
+            icon: IconTerminal
         });
-    },
 
-    active(api) {
-        // Show sidebars when plugin is active
-        api.showLeft(true);
-        api.showRight(true);
-        api.showBottom(true);
+        // Toolbar
+        api.register('save-btn', {
+            type: 'toolbar',
+            icon: IconSave,
+            tooltip: 'Save (Ctrl+S)',
+            onClick: () => saveFile()
+        });
+
+        // Menu
+        api.register('file-menu', {
+            type: 'menu',
+            label: 'File',
+            submenu: [
+                { id: 'save', label: 'Save', shortcut: 'Ctrl+S', action: () => saveFile() }
+            ]
+        });
+
+        // Status
+        api.register('status-ready', {
+            type: 'status',
+            component: () => <span>Ready</span>,
+            align: 'left'
+        });
+
+        // Keyboard shortcuts
+        api.shortcut({
+            'ctrl+s': () => saveFile(),
+            'ctrl+b': () => api.slot('files').toggle()
+        });
     }
 });
 ```
+
+## Next Steps
+
+- [Component Registry](/api/registry) - Deep dive into contracts and discovery
+- [Layout Manager](/api/layout-manager) - Custom layouts
+- [Plugin Lifecycle](/plugins/plugin-lifecycle) - Lifecycle hooks

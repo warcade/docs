@@ -9,10 +9,7 @@ This guide covers the core concepts you need to understand to build WebArcade ap
 A **plugin** is a self-contained unit of functionality. Each plugin can:
 
 - Display its own UI in the main window
-- Have its own tab in the tab bar
-- Add panels to the sidebars
-- Add buttons to the toolbar
-- Add items to the menu
+- Register panels, toolbar buttons, menus, and status items
 - Communicate with other plugins
 - Have its own backend (Rust code)
 
@@ -24,7 +21,8 @@ The **runtime** is the WebArcade application that loads and manages plugins. It 
 
 - **Window management** - Creates and manages the application window
 - **Plugin discovery** - Finds and loads plugins from the `plugins/` folder
-- **Panel system** - The viewport, sidebars, toolbar, menu, and footer
+- **Layout system** - Dynamic layouts with panels, toolbar, menu, and status bar
+- **Component registry** - Central registry for all UI components
 - **Bridge** - Communication between plugins
 - **HTTP server** - Serves the frontend and handles backend requests
 
@@ -81,28 +79,29 @@ Understand the folder structure:
 
 ## Quick Reference
 
-### The Panel System
+### Component Types
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  Menu         ← api.menu()                                  │
+│  Menu         ← api.register({ type: 'menu' })              │
 ├─────────────────────────────────────────────────────────────┤
-│  Toolbar      ← api.toolbar()                               │
+│  Toolbar      ← api.register({ type: 'toolbar' })           │
 ├─────────────────────────────────────────────────────────────┤
-│  Plugin Tabs  ← api.add({ panel: 'tab' })                   │
-├──────────┬─────────────────────────────┬────────────────────┤
-│  Left    │  Viewport                   │  Right             │
-│  Panel   │  ← api.add({                │  Panel             │
-│  ←       │      panel: 'viewport'      │  ←                 │
-│  api.add │    })                       │  api.add           │
-│  ({      │                             │  ({                │
-│   panel: │                             │   panel: 'right'   │
-│   'left' │                             │  })                │
-│  })      │                             │                    │
-├──────────┴─────────────────────────────┴────────────────────┤
-│  Bottom Panel  ← api.add({ panel: 'bottom' })               │
+│                                                             │
+│  ┌──────────┬─────────────────────────┬──────────┐          │
+│  │  Left    │        Viewport         │  Right   │          │
+│  │  Panel   │                         │  Panel   │          │
+│  │          │    api.register({       │          │          │
+│  │          │      type: 'panel',     │          │          │
+│  │          │      component: View    │          │          │
+│  │          │    })                   │          │          │
+│  │          │                         │          │          │
+│  ├──────────┴─────────────────────────┴──────────┤          │
+│  │       Bottom Panel                            │          │
+│  └───────────────────────────────────────────────┘          │
+│                                                             │
 ├─────────────────────────────────────────────────────────────┤
-│  Footer        ← api.footer()                               │
+│  Status Bar  ← api.register({ type: 'status' })             │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -119,16 +118,11 @@ export default plugin({
     // Called ONCE when the plugin loads
     start(api) {
         // Register panels, toolbar buttons, menu items
-    },
-
-    // Called each time the user switches TO this plugin
-    active(api) {
-        // Show panels, refresh data
-    },
-
-    // Called each time the user switches AWAY from this plugin
-    inactive(api) {
-        // Save state, pause operations
+        api.register('main-view', {
+            type: 'panel',
+            component: MainView,
+            label: 'Main'
+        });
     },
 
     // Called when the plugin is unloaded or app closes
@@ -142,18 +136,21 @@ export default plugin({
 
 | Method | What it does |
 |--------|--------------|
-| `api.add()` | Add a panel (viewport, left, right, bottom, tab) |
-| `api.remove()` | Remove a panel |
-| `api.toolbar()` | Add a toolbar button |
-| `api.menu()` | Add a menu item |
-| `api.footer()` | Add a footer component |
-| `api.showLeft()` | Show/hide left panel |
-| `api.showRight()` | Show/hide right panel |
-| `api.showBottom()` | Show/hide bottom panel |
+| `api.register()` | Register a component (panel, toolbar, menu, status) |
+| `api.unregister()` | Remove a registered component |
+| `api.slot().show()` | Show a component |
+| `api.slot().hide()` | Hide a component |
+| `api.slot().toggle()` | Toggle component visibility |
+| `api.slot().focus()` | Focus a component |
+| `api.layout.setActive()` | Switch to a different layout |
+| `api.layout.back()` | Go back to previous layout |
+| `api.shortcut()` | Register keyboard shortcuts |
+| `api.context()` | Register context menu items |
 | `api.provide()` | Provide a service for other plugins |
 | `api.use()` | Use a service from another plugin |
-| `api.publish()` | Send a message |
-| `api.subscribe()` | Receive messages |
+| `api.emit()` | Emit an event |
+| `api.on()` | Listen for events |
 | `api.set()` | Set shared state |
 | `api.get()` | Get shared state |
 | `api.watch()` | Watch for state changes |
+| `api.selector()` | Get reactive state (SolidJS) |

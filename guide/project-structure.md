@@ -24,25 +24,26 @@ The SolidJS frontend that runs in the WebView:
 ```
 src/
 ├── api/                    # APIs for plugins
-│   ├── plugin.js          # Plugin registration API
-│   ├── bridge.js          # Inter-plugin communication
-│   └── index.js           # API exports
-├── panels/                 # Panel components
-│   ├── Panel.jsx          # Unified panel system
-│   ├── PluginTabs.jsx     # Plugin tab bar
-│   ├── topMenu/           # Top menu component
-│   ├── toolbar/           # Toolbar component
-│   └── footer/            # Footer component
-├── layout/                 # Application layout
-│   └── index.jsx          # Main layout component
+│   ├── plugin/            # Plugin system
+│   │   ├── index.jsx      # Plugin registration API
+│   │   ├── Plugin.jsx     # Plugin component
+│   │   ├── registry.jsx   # Component registry
+│   │   └── bridge.js      # Inter-plugin communication
+│   └── layout/            # Layout manager
+│       ├── index.jsx      # Layout management API
+│       └── LayoutRenderer.jsx # Layout rendering
 ├── components/             # Shared components
-│   ├── KeyboardShortcuts/ # Keyboard handling
-│   └── PluginInstaller.jsx # Plugin installation UI
-├── ui/                     # UI primitives
-│   ├── ContextMenu.jsx    # Context menus
-│   └── PanelResizer.jsx   # Panel resize handles
+│   ├── layout/            # Layout primitives
+│   │   ├── Row.jsx        # Horizontal layout
+│   │   ├── Column.jsx     # Vertical layout
+│   │   └── Slot.jsx       # Component slots
+│   └── ui/                # UI primitives
+│       ├── ContextMenu.jsx # Context menus
+│       └── PanelResizer.jsx # Panel resize handles
+├── layouts/               # Built-in layouts
+│   └── DefaultLayout.jsx  # Default application layout
 ├── App.jsx                 # Root component
-├── index.jsx               # Entry point
+├── entry-client.jsx        # Entry point
 └── index.css               # Global styles
 ```
 

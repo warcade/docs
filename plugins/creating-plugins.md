@@ -32,14 +32,6 @@ export default plugin({
         // Register all UI components here
     },
 
-    active(api) {
-        // Called when user switches to this plugin
-    },
-
-    inactive(api) {
-        // Called when user switches away
-    },
-
     stop(api) {
         // Called when plugin is unloaded
     }
@@ -48,46 +40,49 @@ export default plugin({
 
 ## Registering UI Components
 
-Use `api.add()` to register components:
+Use `api.register()` to register components:
 
 ```jsx
 start(api) {
-    // Register plugin tab (appears in main tab bar)
-    api.add({
-        panel: 'tab',
-        label: 'My Plugin',
-        icon: MyIcon,
-    });
-
-    // Register main viewport content
-    api.add({
-        panel: 'viewport',
-        id: 'main',
+    // Register main viewport panel
+    api.register('main-view', {
+        type: 'panel',
         component: MainView,
+        label: 'Main',
+        icon: IconHome
     });
 
-    // Register left sidebar
-    api.add({
-        panel: 'left',
-        id: 'explorer',
-        label: 'Explorer',
+    // Register sidebar panel
+    api.register('explorer', {
+        type: 'panel',
         component: Explorer,
+        label: 'Explorer',
+        icon: IconFolder
     });
 
-    // Register right sidebar
-    api.add({
-        panel: 'right',
-        id: 'properties',
-        label: 'Properties',
-        component: Properties,
+    // Register toolbar button
+    api.register('save-btn', {
+        type: 'toolbar',
+        icon: IconSave,
+        tooltip: 'Save (Ctrl+S)',
+        onClick: () => saveFile()
     });
 
-    // Register bottom panel
-    api.add({
-        panel: 'bottom',
-        id: 'console',
-        label: 'Console',
-        component: Console,
+    // Register menu
+    api.register('file-menu', {
+        type: 'menu',
+        label: 'File',
+        submenu: [
+            { id: 'new', label: 'New', shortcut: 'Ctrl+N', action: () => newFile() },
+            { id: 'save', label: 'Save', shortcut: 'Ctrl+S', action: () => saveFile() }
+        ]
+    });
+
+    // Register status bar item
+    api.register('status-info', {
+        type: 'status',
+        component: () => <span>Ready</span>,
+        align: 'left'
     });
 }
 ```
@@ -117,9 +112,9 @@ export default plugin({
     version: '1.0.0',
 
     start(api) {
-        api.add({ panel: 'viewport', id: 'main', component: MainView });
-        api.add({ panel: 'left', id: 'explorer', label: 'Explorer', component: Explorer });
-        api.add({ panel: 'bottom', id: 'console', label: 'Console', component: Console });
+        api.register('main', { type: 'panel', component: MainView, label: 'Main' });
+        api.register('explorer', { type: 'panel', component: Explorer, label: 'Explorer' });
+        api.register('console', { type: 'panel', component: Console, label: 'Console' });
     }
 });
 ```
@@ -511,23 +506,26 @@ impl Plugin for MyPlugin {
 Use the HTTP API to call your Rust handlers:
 
 ```jsx
-import { http } from '@/api/http';
+import { api } from '@/api/plugin';
 
 export default function DataView() {
     const [data, setData] = createSignal([]);
     const [loading, setLoading] = createSignal(true);
 
     onMount(async () => {
-        const result = await http.get('/plugins/my-plugin/data');
+        const response = await api('my-plugin/data');
+        const result = await response.json();
         setData(result);
         setLoading(false);
     });
 
     const saveItem = async (name, value) => {
-        const result = await http.post('/plugins/my-plugin/data', {
-            name,
-            value
+        const response = await api('my-plugin/data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, value })
         });
+        const result = await response.json();
         console.log('Saved:', result);
     };
 
@@ -561,6 +559,6 @@ webarcade build my-plugin
 ## Next Steps
 
 - [Plugin Lifecycle](/plugins/plugin-lifecycle) - Understanding lifecycle hooks
-- [Panel System](/plugins/panels) - Deep dive into panels
+- [Component Registry](/api/registry) - Component types and contracts
 - [Plugin API](/api/plugin-api) - Full frontend API reference
 - [Rust API](/api/rust-api) - Complete Rust backend API reference
