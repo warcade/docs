@@ -360,8 +360,8 @@ You've created a working plugin! Here are your next steps:
 
 | Want to... | Read this |
 |------------|-----------|
-| Learn about all panel types | [Panel System](/plugins/panels) |
-| Add toolbar buttons | [Toolbar & Menus](/plugins/toolbar-menu) |
+| Register components | [Component Registry](/api/registry) |
+| Add toolbar buttons | [Component Registry](/api/registry#toolbar-components) |
 | Add a Rust backend | [Full-Stack Plugin](/examples/full-stack) |
 | Understand the full API | [Plugin API Reference](/api/plugin-api) |
 | See more examples | [Examples](/examples/) |

@@ -53,10 +53,7 @@ export default defineConfig({
         items: [
           { text: 'Overview', link: '/plugins/' },
           { text: 'Creating Plugins', link: '/plugins/creating-plugins' },
-          { text: 'Plugin Lifecycle', link: '/plugins/plugin-lifecycle' },
-          { text: 'Panel System', link: '/plugins/panels' },
-          { text: 'Toolbar & Menus', link: '/plugins/toolbar-menu' },
-          { text: 'Shared Components', link: '/plugins/shared-components' }
+          { text: 'Plugin Lifecycle', link: '/plugins/plugin-lifecycle' }
         ]
       },
       {
@@ -64,6 +61,8 @@ export default defineConfig({
         items: [
           { text: 'Overview', link: '/api/' },
           { text: 'Plugin API', link: '/api/plugin-api' },
+          { text: 'Component Registry', link: '/api/registry' },
+          { text: 'Layout Manager', link: '/api/layout-manager' },
           { text: 'Bridge API', link: '/api/bridge-api' },
           { text: 'HTTP API', link: '/api/http-api' },
           { text: 'Rust API', link: '/api/rust-api' },
