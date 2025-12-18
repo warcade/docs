@@ -390,6 +390,55 @@ const [count, setCount] = createSignal(0);
 
 SolidJS automatically updates the UI when state changes.
 
+## Step 9: Using Slots (Plugin Interoperability)
+
+What if you want your layout to display components from *other* plugins? That's where `Slot` comes in.
+
+First, register a panel component (this can be in any plugin):
+
+```jsx
+// In any plugin's start() function
+api.register('my-panel', {
+    type: 'panel',
+    component: MyPanelComponent,
+    label: 'My Panel',
+    icon: IconStar
+});
+```
+
+Then use `Slot` in your layout to pull it in:
+
+```jsx
+import { plugin, Column, Row, Toolbar, Slot } from 'webarcade';
+import { DragRegion, WindowControls } from 'webarcade/components/ui';
+
+function MyLayout() {
+    return (
+        <Column class="h-screen bg-base-100">
+            <Toolbar>
+                <DragRegion class="flex-1 h-full" />
+                <WindowControls />
+            </Toolbar>
+            <Row class="flex-1">
+                {/* Pull in registered panels by their full ID (plugin-id:component-id) */}
+                <Slot name="sidebar" use={['file-browser:tree', 'git:changes']} size="250px" />
+                <Slot name="main" use={['editor:code']} flex={1} />
+                <Slot name="properties" use={['inspector:props']} size="300px" />
+            </Row>
+        </Column>
+    );
+}
+```
+
+**Slot props:**
+- `use` - Array of component IDs to display (format: `plugin-id:component-id`)
+- `name` - Name for this slot (for styling/debugging)
+- `size` - Fixed width/height (e.g., `"250px"`)
+- `flex` - Flex grow value (e.g., `1` to fill remaining space)
+- `showTabs` - Show tab bar when multiple components (default: auto)
+
+When multiple components are in a slot, they appear as tabs!
+
 ## What's Next?
 
 You've created a working plugin! Here are your next steps:
