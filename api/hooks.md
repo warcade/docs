@@ -6,6 +6,85 @@ WebArcade provides a set of **reactive hooks** for plugin development. These hoo
 Hooks are the **preferred way** to access services, subscribe to events, and manage shared state in your plugin components. They provide automatic cleanup and integrate seamlessly with SolidJS reactivity.
 :::
 
+## Creating Services
+
+Before consuming services with hooks, you need to **provide** them. Services are created in your plugin's `start()` lifecycle hook using `api.provide()`:
+
+```jsx
+import { plugin } from '@/api/plugin';
+import { createSignal } from 'solid-js';
+
+export default plugin({
+    id: 'audio-plugin',
+    name: 'Audio Plugin',
+    version: '1.0.0',
+
+    start(api) {
+        // Create reactive state for the service
+        const [volume, setVolume] = createSignal(1.0);
+        const [playing, setPlaying] = createSignal(false);
+
+        // Create the service object
+        const audioService = {
+            // Expose signals for reactive access
+            volume,
+            playing,
+
+            // Methods
+            play(url) {
+                console.log('Playing:', url);
+                setPlaying(true);
+            },
+
+            pause() {
+                setPlaying(false);
+            },
+
+            setVolume(level) {
+                setVolume(Math.max(0, Math.min(1, level)));
+            }
+        };
+
+        // Register the service for other plugins
+        api.provide('audio', audioService);
+    },
+
+    stop(api) {
+        // Clean up when plugin unloads
+        api.unprovide('audio');
+    }
+});
+```
+
+::: tip Reactive Services
+When creating services, expose SolidJS signals (like `volume` and `playing` above) as properties. This allows consumers using `useReactiveService()` to get automatic reactivity when your service state changes.
+:::
+
+Now other plugins can consume this service using hooks:
+
+```jsx
+function VolumeControl() {
+    const audio = useReactiveService('audio');
+
+    return (
+        <div>
+            {/* Reactive - updates when audio.playing() changes */}
+            <span>{audio.playing() ? 'Playing' : 'Paused'}</span>
+
+            <input
+                type="range"
+                min="0"
+                max="100"
+                value={audio.volume() * 100}
+                onInput={(e) => audio.setVolume(e.target.value / 100)}
+            />
+        </div>
+    );
+}
+```
+
+---
+
 ## Service Hooks
 
 Service hooks provide reactive access to services provided by other plugins.
