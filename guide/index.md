@@ -132,7 +132,52 @@ export default plugin({
 });
 ```
 
+### Plugin Hooks (Recommended for Components)
+
+Use hooks in your components for reactive access and automatic cleanup:
+
+```jsx
+import {
+    useReactiveService,
+    useEvent,
+    useStore,
+    useDebounce
+} from '@/api/plugin';
+
+function MyComponent() {
+    // Reactive service access
+    const engine = useReactiveService('game-engine');
+
+    // Shared state with reactivity
+    const [score, setScore] = useStore('player.score', 0);
+
+    // Events with auto-cleanup
+    useEvent('enemy:killed', (data) => {
+        setScore(s => s + data.points);
+    });
+
+    return <div>Score: {score()}</div>;
+}
+```
+
+| Hook | What it does |
+|------|--------------|
+| `useReactiveService()` | Access a service with reactivity |
+| `useService()` | Access a required service |
+| `useOptionalService()` | Access an optional service |
+| `useServiceReady()` | Callback when service is ready |
+| `useEvent()` | Subscribe to events (auto-cleanup) |
+| `usePublish()` | Get a publish function for events |
+| `useStore()` | Read/write shared state reactively |
+| `useStoreSelector()` | Derive computed values from store |
+| `useDebounce()` | Debounce a function |
+| `useThrottle()` | Throttle a function |
+
+See the [Plugin Hooks API](/api/hooks) for complete documentation.
+
 ### Key API Methods
+
+For lifecycle hooks (`start()`, `stop()`) and non-component code:
 
 | Method | What it does |
 |--------|--------------|

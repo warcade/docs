@@ -60,6 +60,7 @@ export default defineConfig({
         text: 'API Reference',
         items: [
           { text: 'Overview', link: '/api/' },
+          { text: 'Plugin Hooks', link: '/api/hooks' },
           { text: 'Plugin API', link: '/api/plugin-api' },
           { text: 'Component Registry', link: '/api/registry' },
           { text: 'Layout Manager', link: '/api/layout-manager' },

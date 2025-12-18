@@ -4,6 +4,15 @@ This section provides comprehensive documentation for all WebArcade APIs.
 
 ## Frontend APIs
 
+### [Plugin Hooks](/api/hooks) :badge[New]{type="tip"}
+Reactive hooks for plugin development. The **recommended** way to access services, events, and shared state.
+
+Key hooks:
+- `useReactiveService()` - Reactive service access
+- `useEvent()` / `usePublish()` - Event pub/sub with auto-cleanup
+- `useStore()` - Reactive shared state
+- `useDebounce()` / `useThrottle()` - Utility hooks
+
 ### [Plugin API](/api/plugin-api)
 Core API for building plugins. Register UI components using the unified component registry.
 
@@ -53,6 +62,45 @@ Key types:
 - `Plugin` trait - Plugin metadata
 
 ## Quick Reference
+
+### Plugin Hooks (Recommended)
+
+```jsx
+import {
+    useReactiveService,
+    useEvent,
+    usePublish,
+    useStore,
+    useDebounce
+} from '@/api/plugin';
+
+function MyComponent() {
+    // Reactive service access
+    const engine = useReactiveService('game-engine');
+
+    // Store with reactivity
+    const [score, setScore] = useStore('player.score', 0);
+
+    // Events with auto-cleanup
+    useEvent('enemy:killed', (data) => {
+        setScore(s => s + data.points);
+    });
+
+    // Publish events
+    const publish = usePublish('game:action');
+
+    // Debounced function
+    const save = useDebounce(() => engine.save(), 1000);
+
+    return (
+        <div>
+            <div>Score: {score()}</div>
+            <div>Meshes: {engine.meshes().length}</div>
+            <button onClick={() => publish({ type: 'jump' })}>Jump</button>
+        </div>
+    );
+}
+```
 
 ### Component Registration
 

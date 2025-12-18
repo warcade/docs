@@ -148,6 +148,74 @@ export default function MainView() {
 }
 ```
 
+## Using Plugin Hooks
+
+WebArcade provides reactive hooks for accessing services, events, and shared state:
+
+```jsx
+// dashboard.jsx
+import { createSignal } from 'solid-js';
+import {
+    useReactiveService,
+    useEvent,
+    useStore,
+    useDebounce
+} from '@/api/plugin';
+
+export default function Dashboard() {
+    // Access another plugin's service reactively
+    const engine = useReactiveService('game-engine');
+
+    // Shared state with automatic reactivity
+    const [playerName, setPlayerName] = useStore('player.name', 'Player 1');
+    const [score, setScore] = useStore('player.score', 0);
+
+    // Subscribe to events (auto-cleanup on unmount)
+    useEvent('enemy:killed', (data) => {
+        setScore(s => s + data.points);
+    });
+
+    // Debounced search
+    const [query, setQuery] = createSignal('');
+    const search = useDebounce((term) => {
+        console.log('Searching:', term);
+    }, 300);
+
+    return (
+        <div class="p-4 space-y-4">
+            <h1 class="text-xl">Welcome, {playerName()}!</h1>
+
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-title">Score</div>
+                    <div class="stat-value">{score()}</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-title">Objects</div>
+                    <div class="stat-value">{engine.meshes().length}</div>
+                </div>
+            </div>
+
+            <input
+                class="input input-bordered w-full"
+                placeholder="Search..."
+                value={query()}
+                onInput={(e) => {
+                    setQuery(e.target.value);
+                    search(e.target.value);
+                }}
+            />
+        </div>
+    );
+}
+```
+
+::: tip
+Hooks automatically clean up subscriptions when components unmount. No need to track cleanup in `stop()`.
+:::
+
+See the [Plugin Hooks API](/api/hooks) for the complete reference.
+
 ## Built-in Styling
 
 WebArcade comes with **Tailwind CSS**, **DaisyUI**, and **Tabler Icons** pre-configured. No setup required - just use them directly in your components.

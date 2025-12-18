@@ -6,6 +6,25 @@ The Bridge API enables communication between plugins. It has three parts:
 2. **Message Bus** - Publish/subscribe event system
 3. **Shared Store** - Reactive shared state
 
+::: tip Recommended: Use Hooks
+For component-based code, we recommend using **[Plugin Hooks](/api/hooks)** instead of the direct Bridge API. Hooks provide:
+- Automatic cleanup when components unmount
+- Built-in SolidJS reactivity
+- Less boilerplate code
+
+```jsx
+// Hooks approach (recommended for components)
+const engine = useReactiveService('game-engine');
+const [score, setScore] = useStore('player.score', 0);
+useEvent('enemy:killed', (data) => setScore(s => s + data.points));
+```
+
+The direct Bridge API is still useful for:
+- Plugin lifecycle hooks (`start()`, `stop()`)
+- Non-component code
+- Advanced use cases
+:::
+
 ## Services
 
 Services let one plugin provide functionality that other plugins can use.
