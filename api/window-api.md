@@ -9,7 +9,7 @@ WebArcade provides APIs for controlling the desktop window and accessing native 
 Control the application window programmatically.
 
 ```jsx
-import { api } from '@/api/plugin';
+import { api } from 'webarcade';
 
 // Minimize the window
 api.window.minimize();
@@ -519,7 +519,7 @@ api.drag.startDrag({
 ## Complete Example
 
 ```jsx
-import { plugin, api } from '@/api/plugin';
+import { plugin, api } from 'webarcade';
 
 export default plugin({
     id: 'desktop-demo',

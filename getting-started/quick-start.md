@@ -76,7 +76,7 @@ webarcade new my-plugin --frontend-only
 This creates `plugins/my-plugin/index.jsx`:
 
 ```jsx
-import { plugin } from '@/api/plugin';
+import { plugin } from 'webarcade';
 
 export default plugin({
     id: 'my-plugin',
@@ -94,7 +94,7 @@ export default plugin({
 Edit `plugins/my-plugin/index.jsx`:
 
 ```jsx
-import { plugin } from '@/api/plugin';
+import { plugin } from 'webarcade';
 import { IconHome } from '@tabler/icons-solidjs';
 
 // A simple component that displays "Hello World"
@@ -149,7 +149,7 @@ You should see your "Hello, World!" message!
 Let's add a button that counts clicks. Update your plugin:
 
 ```jsx
-import { plugin } from '@/api/plugin';
+import { plugin } from 'webarcade';
 import { createSignal } from 'solid-js';
 import { IconHome } from '@tabler/icons-solidjs';
 
@@ -206,7 +206,7 @@ Now you have an interactive counter!
 Let's add a sidebar panel:
 
 ```jsx
-import { plugin } from '@/api/plugin';
+import { plugin } from 'webarcade';
 import { createSignal } from 'solid-js';
 import { IconHome, IconSettings } from '@tabler/icons-solidjs';
 

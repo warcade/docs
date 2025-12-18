@@ -331,7 +331,7 @@ Closes #123
 ### Plugin Template
 
 ```jsx
-import { plugin } from '@/api/plugin';
+import { plugin } from 'webarcade';
 
 export default plugin({
     id: 'my-awesome-plugin',

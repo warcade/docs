@@ -9,7 +9,7 @@ Communicate with plugin Rust backends via HTTP.
 Make HTTP requests to plugin backends. The `api` function is exported from the plugin module.
 
 ```jsx
-import { api } from '@/api/plugin';
+import { api } from 'webarcade';
 
 // Signature
 api(endpoint: string, options?: RequestInit): Promise<Response>
@@ -102,7 +102,7 @@ Create typed API helpers:
 
 ```jsx
 // api/users.js
-import { api } from '@/api/plugin';
+import { api } from 'webarcade';
 
 export async function getUsers() {
     const res = await api('my-plugin/users');

@@ -360,7 +360,7 @@ verbose = false
 ### Using the Config in Code
 
 ```jsx
-import { plugin } from '@/api/plugin';
+import { plugin } from 'webarcade';
 
 export default plugin({
     id: 'code-editor',

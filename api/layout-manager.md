@@ -7,7 +7,7 @@ The Layout Manager provides a dynamic system for switching between different UI 
 Layouts are SolidJS components that define how the UI is structured. You can register multiple layouts and switch between them dynamically.
 
 ```jsx
-import { layoutManager } from '@/api/plugin';
+import { layoutManager } from 'webarcade';
 
 // Register layouts
 layoutManager.register('editor', {
@@ -162,7 +162,7 @@ const slots = layoutManager.getSlots('editor');
 For use in SolidJS components, the Layout Manager provides reactive signals.
 
 ```jsx
-import { layoutManager } from '@/api/plugin';
+import { layoutManager } from 'webarcade';
 
 function LayoutSwitcher() {
     const activeId = layoutManager.signals.activeId;
@@ -253,7 +253,7 @@ export default plugin({
 To render the active layout in your app, use the LayoutRenderer component:
 
 ```jsx
-import { Engine, LayoutRenderer } from '@/api/plugin';
+import { Engine, LayoutRenderer } from 'webarcade';
 
 function App() {
     return (
@@ -283,7 +283,7 @@ document.addEventListener('layout:change', (event) => {
 ## Example: Custom Layout Component
 
 ```jsx
-import { Row, Column, Slot } from '@/components/layout';
+import { Row, Column, Slot } from 'webarcade';
 
 function EditorLayout() {
     return (

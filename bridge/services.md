@@ -70,7 +70,7 @@ export default plugin({
 Use hooks in components:
 
 ```jsx
-import { useService, useOptionalService } from '@/api/plugin/hooks';
+import { useService, useOptionalService } from 'webarcade';
 
 function UserList() {
     // Throws if service not found

@@ -66,7 +66,7 @@ api.subscribe('log-entry', (data) => {
 ## Message Hooks
 
 ```jsx
-import { useEvent, usePublish } from '@/api/plugin/hooks';
+import { useEvent, usePublish } from 'webarcade';
 
 function NotificationCenter() {
     // Subscribe to events with auto-cleanup

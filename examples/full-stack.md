@@ -21,7 +21,7 @@ plugins/todo-app/
 ## Frontend: index.jsx
 
 ```jsx
-import { plugin, api } from '@/api/plugin';
+import { plugin, api } from 'webarcade';
 import { createSignal, createResource, For, Show } from 'solid-js';
 import { IconPlus, IconTrash, IconCheck, IconList, IconRefresh } from '@tabler/icons-solidjs';
 

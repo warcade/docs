@@ -66,7 +66,7 @@ cargo install webarcade
 1. Ensure `plugins/plugin-name/index.jsx` exists
 2. Check that the file exports a default plugin:
 ```jsx
-import { plugin } from '@/api/plugin';
+import { plugin } from 'webarcade';
 
 export default plugin({
     id: 'plugin-name',

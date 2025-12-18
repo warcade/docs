@@ -171,7 +171,7 @@ export default plugin({
 ## Complete Example
 
 ```jsx
-import { plugin } from '@/api/plugin';
+import { plugin } from 'webarcade';
 import { createSignal, For } from 'solid-js';
 import { IconSun, IconMoon, IconPalette } from '@tabler/icons-solidjs';
 

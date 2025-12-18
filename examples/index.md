@@ -26,7 +26,7 @@ A complete plugin with both frontend UI and Rust backend.
 ### Minimal Plugin
 
 ```jsx
-import { plugin } from '@/api/plugin';
+import { plugin } from 'webarcade';
 
 export default plugin({
     id: 'minimal',
@@ -46,7 +46,7 @@ export default plugin({
 ### Plugin with Sidebar
 
 ```jsx
-import { plugin } from '@/api/plugin';
+import { plugin } from 'webarcade';
 
 function MainView() {
     return <div class="p-4">Main Content</div>;
@@ -89,7 +89,7 @@ export default plugin({
 ### Plugin with State
 
 ```jsx
-import { plugin } from '@/api/plugin';
+import { plugin } from 'webarcade';
 import { createSignal } from 'solid-js';
 
 const [count, setCount] = createSignal(0);
@@ -123,7 +123,7 @@ export default plugin({
 ### Plugin with Toolbar
 
 ```jsx
-import { plugin } from '@/api/plugin';
+import { plugin } from 'webarcade';
 import { createSignal } from 'solid-js';
 import { IconPlus, IconMinus, IconRefresh } from '@tabler/icons-solidjs';
 
@@ -177,7 +177,7 @@ export default plugin({
 ### Plugin with Shared Store
 
 ```jsx
-import { plugin } from '@/api/plugin';
+import { plugin } from 'webarcade';
 
 function Settings(props) {
     const { api } = props;
@@ -232,7 +232,7 @@ export default plugin({
 ### Plugin with Services
 
 ```jsx
-import { plugin } from '@/api/plugin';
+import { plugin } from 'webarcade';
 
 // Provider plugin
 export const audioPlugin = plugin({
@@ -279,7 +279,7 @@ export const gamePlugin = plugin({
 ### Plugin with Keyboard Shortcuts
 
 ```jsx
-import { plugin } from '@/api/plugin';
+import { plugin } from 'webarcade';
 import { createSignal } from 'solid-js';
 
 const [logs, setLogs] = createSignal([]);
@@ -330,7 +330,7 @@ export default plugin({
 ### Plugin with Contracts
 
 ```jsx
-import { plugin } from '@/api/plugin';
+import { plugin } from 'webarcade';
 
 // File browser plugin with contracts
 export default plugin({

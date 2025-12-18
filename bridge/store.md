@@ -84,7 +84,7 @@ function ThemeDisplay() {
 ## Store Hooks
 
 ```jsx
-import { useStore, useStoreSelector } from '@/api/plugin/hooks';
+import { useStore, useStoreSelector } from 'webarcade';
 
 function Settings() {
     // Get and set

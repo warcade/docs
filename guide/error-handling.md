@@ -425,7 +425,7 @@ function downloadFile(filename, content) {
 ## Complete Example
 
 ```jsx
-import { plugin } from '@/api/plugin';
+import { plugin } from 'webarcade';
 import { createSignal, createResource, ErrorBoundary, Show, Switch, Match } from 'solid-js';
 
 // Custom error classes

@@ -11,7 +11,7 @@ Hooks are the **preferred way** to access services, subscribe to events, and man
 Before consuming services with hooks, you need to **provide** them. Services are created in your plugin's `start()` lifecycle hook using `api.provide()`:
 
 ```jsx
-import { plugin } from '@/api/plugin';
+import { plugin } from 'webarcade';
 import { createSignal } from 'solid-js';
 
 export default plugin({
@@ -94,7 +94,7 @@ Service hooks provide reactive access to services provided by other plugins.
 Access a **required** service. Throws an error if the service isn't available after the timeout.
 
 ```jsx
-import { useService } from '@/api/plugin';
+import { useService } from 'webarcade';
 
 function MyComponent() {
     const getAudio = useService('audio');
@@ -122,7 +122,7 @@ function MyComponent() {
 Access an **optional** service. Returns `null` if the service isn't available.
 
 ```jsx
-import { useOptionalService } from '@/api/plugin';
+import { useOptionalService } from 'webarcade';
 
 function MyComponent() {
     const audio = useOptionalService('audio');
@@ -152,7 +152,7 @@ function MyComponent() {
 Execute a callback when a service becomes available. Returns a signal indicating ready state.
 
 ```jsx
-import { useServiceReady } from '@/api/plugin';
+import { useServiceReady } from 'webarcade';
 
 function GameView() {
     const ready = useServiceReady('game-engine', (engine) => {
@@ -184,7 +184,7 @@ Access a service with **full reactivity**. Returns a proxy that forwards all acc
 This is the **recommended** way to access services in components.
 
 ```jsx
-import { useReactiveService } from '@/api/plugin';
+import { useReactiveService } from 'webarcade';
 
 function GameUI() {
     const engine = useReactiveService('game-engine');
@@ -228,7 +228,7 @@ Event hooks provide reactive pub/sub patterns with automatic cleanup.
 Subscribe to an event channel with **automatic cleanup** when the component unmounts.
 
 ```jsx
-import { useEvent } from '@/api/plugin';
+import { useEvent } from 'webarcade';
 
 function NotificationHandler() {
     const [messages, setMessages] = createSignal([]);
@@ -265,7 +265,7 @@ function NotificationHandler() {
 Get a publish function for an event channel.
 
 ```jsx
-import { usePublish } from '@/api/plugin';
+import { usePublish } from 'webarcade';
 
 function FileEditor() {
     const publishSave = usePublish('file:saved');
@@ -296,7 +296,7 @@ Store hooks provide reactive access to the shared store.
 Access a value from the shared store with **reactivity**. Returns a getter and setter tuple.
 
 ```jsx
-import { useStore } from '@/api/plugin';
+import { useStore } from 'webarcade';
 
 function ThemeToggle() {
     const [theme, setTheme] = useStore('settings.theme', 'dark');
@@ -347,7 +347,7 @@ function PlayerStats() {
 Create a **derived/computed** value from the store.
 
 ```jsx
-import { useStoreSelector } from '@/api/plugin';
+import { useStoreSelector } from 'webarcade';
 
 function PlayerInfo() {
     const fullName = useStoreSelector(
@@ -384,7 +384,7 @@ Utility hooks for common patterns.
 Create a **debounced** version of a function. Automatically cleaned up on unmount.
 
 ```jsx
-import { useDebounce } from '@/api/plugin';
+import { useDebounce } from 'webarcade';
 
 function SearchInput() {
     const [query, setQuery] = createSignal('');
@@ -421,7 +421,7 @@ function SearchInput() {
 Create a **throttled** version of a function. Automatically cleaned up on unmount.
 
 ```jsx
-import { useThrottle } from '@/api/plugin';
+import { useThrottle } from 'webarcade';
 
 function MouseTracker() {
     const [position, setPosition] = createSignal({ x: 0, y: 0 });
@@ -453,7 +453,7 @@ function MouseTracker() {
 Here's a complete plugin using hooks:
 
 ```jsx
-import { plugin } from '@/api/plugin';
+import { plugin } from 'webarcade';
 import { createSignal, Show } from 'solid-js';
 import {
     useReactiveService,
@@ -461,7 +461,7 @@ import {
     usePublish,
     useStore,
     useDebounce
-} from '@/api/plugin';
+} from 'webarcade';
 
 function GameDashboard() {
     // Reactive service access
@@ -576,7 +576,7 @@ import {
     useStoreSelector,
     useDebounce,
     useThrottle,
-} from '@/api/plugin';
+} from 'webarcade';
 ```
 
 Or from the global `WebArcadeAPI`:

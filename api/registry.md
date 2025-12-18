@@ -24,7 +24,7 @@ api.register('file-explorer', {
 The registry supports four component types:
 
 ```jsx
-import { ComponentType } from '@/api/plugin';
+import { ComponentType } from 'webarcade';
 
 ComponentType.PANEL    // 'panel' - Side panels, viewports
 ComponentType.TOOLBAR  // 'toolbar' - Toolbar buttons
@@ -206,7 +206,7 @@ const fileOpeners = api.findByContract({ emits: 'file-opened' });
 ### Checking Contracts
 
 ```jsx
-import { componentRegistry } from '@/api/plugin';
+import { componentRegistry } from 'webarcade';
 
 // Check if a component provides a contract
 if (componentRegistry.provides('my-plugin:file-explorer', 'file-browser')) {
@@ -235,7 +235,7 @@ const component = api.getComponent('editor:file-explorer');
 ### Direct Registry Access
 
 ```jsx
-import { componentRegistry } from '@/api/plugin';
+import { componentRegistry } from 'webarcade';
 
 // Get all components
 const all = componentRegistry.getAll();
@@ -279,7 +279,7 @@ api.unregister('explorer');
 The registry uses SolidJS stores for granular reactivity:
 
 ```jsx
-import { componentRegistry } from '@/api/plugin';
+import { componentRegistry } from 'webarcade';
 import { For, createMemo } from 'solid-js';
 
 function ToolbarRenderer() {
@@ -312,7 +312,7 @@ function ToolbarRenderer() {
 The registry maintains indexes for fast contract lookups:
 
 ```jsx
-import { contractIndex } from '@/api/plugin';
+import { contractIndex } from 'webarcade';
 
 // Direct access to contract indexes
 const fileBrowsers = contractIndex.provides['file-browser'];  // Array of fullIds

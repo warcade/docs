@@ -49,7 +49,7 @@ webarcade build --all
 ## Basic Plugin Structure
 
 ```jsx
-import { plugin } from '@/api/plugin';
+import { plugin } from 'webarcade';
 
 export default plugin({
     id: 'my-plugin',

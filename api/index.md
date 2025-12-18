@@ -35,7 +35,7 @@ Build plugin backends with Rust. Define HTTP routes and handlers.
 **In components**, use hooks:
 
 ```jsx
-import { useReactiveService, useStore, useEvent } from '@/api/plugin';
+import { useReactiveService, useStore, useEvent } from 'webarcade';
 
 function MyComponent() {
     const engine = useReactiveService('my-service');

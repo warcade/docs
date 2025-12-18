@@ -5,7 +5,7 @@ The Plugin API is used to register UI components and control the application.
 ## Creating a Plugin
 
 ```jsx
-import { plugin } from '@/api/plugin';
+import { plugin } from 'webarcade';
 
 export default plugin({
     id: 'my-plugin',
@@ -458,7 +458,7 @@ function ThemeDisplay() {
 Make HTTP requests to plugin backends.
 
 ```jsx
-import { api } from '@/api/plugin';
+import { api } from 'webarcade';
 
 api(endpoint: string, options?: RequestInit): Promise<Response>
 ```
@@ -479,7 +479,7 @@ await api('my-plugin/data', {
 ## Complete Example
 
 ```jsx
-import { plugin } from '@/api/plugin';
+import { plugin } from 'webarcade';
 import { createSignal } from 'solid-js';
 import { IconCode, IconSave, IconFolder } from '@tabler/icons-solidjs';
 

@@ -360,7 +360,7 @@ function openFile(filename) {
 ## Complete Example
 
 ```jsx
-import { plugin } from '@/api/plugin';
+import { plugin } from 'webarcade';
 import { IconCode, IconFolder, IconTerminal, IconSettings, IconSave } from '@tabler/icons-solidjs';
 
 function EditorView() {

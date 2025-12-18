@@ -144,7 +144,7 @@ api.register('editor', {
 ## Example: Complete Plugin
 
 ```jsx
-import { plugin } from '@/api/plugin';
+import { plugin } from 'webarcade';
 import { createSignal } from 'solid-js';
 import { IconNotes, IconPlus, IconTrash } from '@tabler/icons-solidjs';
 

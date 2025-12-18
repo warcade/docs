@@ -66,7 +66,7 @@ Components are located in `src/components/ui/`:
 Import from the UI library:
 
 ```jsx
-import { Input, Select, Card, Modal } from '@/components/ui';
+import { Input, Select, Card, Modal } from 'webarcade/components/ui';
 ```
 
 ## Styling
@@ -84,7 +84,7 @@ Components use DaisyUI classes and support:
 ## Toast Notifications
 
 ```jsx
-import { toast } from '@/components/ui';
+import { toast } from 'webarcade/components/ui';
 
 toast.success('Saved!');
 toast.error('Failed');

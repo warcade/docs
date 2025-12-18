@@ -20,7 +20,7 @@ webarcade new my-plugin --name "My Plugin" --author "Your Name"
 Every plugin needs an `index.jsx` file:
 
 ```jsx
-import { plugin } from '@/api/plugin';
+import { plugin } from 'webarcade';
 
 export default plugin({
     id: 'my-plugin',
@@ -160,7 +160,7 @@ import {
     useEvent,
     useStore,
     useDebounce
-} from '@/api/plugin';
+} from 'webarcade';
 
 export default function Dashboard() {
     // Access another plugin's service reactively
@@ -574,7 +574,7 @@ impl Plugin for MyPlugin {
 Use the HTTP API to call your Rust handlers:
 
 ```jsx
-import { api } from '@/api/plugin';
+import { api } from 'webarcade';
 
 export default function DataView() {
     const [data, setData] = createSignal([]);

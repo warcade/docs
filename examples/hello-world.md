@@ -18,7 +18,7 @@ plugins/hello-world/
 ## index.jsx
 
 ```jsx
-import { plugin } from '@/api/plugin';
+import { plugin } from 'webarcade';
 import { createSignal } from 'solid-js';
 import { IconHome, IconMoon, IconSun } from '@tabler/icons-solidjs';
 
