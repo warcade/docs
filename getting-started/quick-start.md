@@ -24,15 +24,11 @@ Your new project looks like this:
 
 ```
 my-app/
-├── src/                    # Frontend source code
-│   ├── api/               # Plugin APIs (don't modify)
-│   ├── components/        # UI components (don't modify)
-│   └── ...
 ├── app/                    # Desktop runtime
 │   ├── src/               # Rust source (don't modify)
 │   └── Cargo.toml         # App configuration
 ├── plugins/               # Your plugins go here
-│   └── hello-world/       # Example plugin
+│   └── demo/              # Example plugin
 ├── package.json           # Frontend dependencies
 └── README.md
 ```
@@ -43,8 +39,15 @@ my-app/
 |--------|---------------|-----------------|
 | `plugins/` | Your plugin code | Yes |
 | `app/Cargo.toml` | App name, icon, metadata | Yes |
-| `src/` | Core frontend code | No |
 | `app/src/` | Core runtime code | No |
+
+::: tip Framework is in npm
+The WebArcade framework (APIs, components, etc.) comes from the `webarcade` npm package. Just import what you need:
+```jsx
+import { plugin, Column, Row, Toolbar } from 'webarcade';
+import { DragRegion, WindowControls } from 'webarcade/components/ui';
+```
+:::
 
 ## Step 3: Run the App
 
