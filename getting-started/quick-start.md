@@ -73,34 +73,20 @@ Let's create a simple plugin. In your terminal (you can open a new one while the
 webarcade new my-plugin --frontend-only
 ```
 
-This creates `plugins/my-plugin/index.jsx`:
-
-```jsx
-import { plugin } from 'webarcade';
-
-export default plugin({
-    id: 'my-plugin',
-    name: 'My Plugin',
-    version: '1.0.0',
-
-    start(api) {
-        // This runs when the plugin loads
-    }
-});
-```
+This creates `plugins/my-plugin/index.jsx`.
 
 ## Step 5: Add Content
 
-Edit `plugins/my-plugin/index.jsx`:
+Edit `plugins/my-plugin/index.jsx` to create a complete plugin with a layout:
 
 ```jsx
-import { plugin } from 'webarcade';
-import { IconHome } from '@tabler/icons-solidjs';
+import { plugin, Column, Toolbar } from 'webarcade';
+import { DragRegion, WindowControls } from 'webarcade/components/ui';
 
-// A simple component that displays "Hello World"
+// Your main content component
 function HelloWorld() {
     return (
-        <div class="flex items-center justify-center h-full">
+        <div class="flex-1 flex items-center justify-center">
             <div class="text-center">
                 <h1 class="text-4xl font-bold mb-4">Hello, World!</h1>
                 <p class="text-lg opacity-70">
@@ -111,22 +97,46 @@ function HelloWorld() {
     );
 }
 
+// Layout component - this is what actually renders on screen
+function MyLayout() {
+    return (
+        <Column class="h-screen bg-base-100">
+            <Toolbar>
+                <DragRegion class="flex-1 h-full" />
+                <WindowControls />
+            </Toolbar>
+            <HelloWorld />
+        </Column>
+    );
+}
+
 export default plugin({
     id: 'my-plugin',
     name: 'My Plugin',
     version: '1.0.0',
 
     start(api) {
-        // Register a panel component
-        api.register('main-view', {
-            type: 'panel',
-            component: HelloWorld,
-            label: 'My Plugin',
-            icon: IconHome
+        // Register the layout
+        api.layout.register('my-layout', {
+            name: 'My Layout',
+            component: MyLayout,
+            order: 1
         });
+
+        // Activate this layout
+        api.layout.setActive('my-layout');
     }
 });
 ```
+
+::: tip Understanding Layouts
+Every plugin needs a **layout** to display content. The layout includes:
+- `Column` - A flex column container
+- `Toolbar` - The top bar with window controls
+- `DragRegion` - Makes the toolbar draggable (for moving the window)
+- `WindowControls` - Minimize, maximize, close buttons
+- Your content below the toolbar
+:::
 
 ## Step 6: Build and See Your Plugin
 
@@ -149,9 +159,9 @@ You should see your "Hello, World!" message!
 Let's add a button that counts clicks. Update your plugin:
 
 ```jsx
-import { plugin } from 'webarcade';
+import { plugin, Column, Toolbar } from 'webarcade';
+import { DragRegion, WindowControls } from 'webarcade/components/ui';
 import { createSignal } from 'solid-js';
-import { IconHome } from '@tabler/icons-solidjs';
 
 function Counter() {
     // createSignal creates reactive state
@@ -160,7 +170,7 @@ function Counter() {
     const [count, setCount] = createSignal(0);
 
     return (
-        <div class="flex items-center justify-center h-full">
+        <div class="flex-1 flex items-center justify-center">
             <div class="text-center">
                 <h1 class="text-4xl font-bold mb-4">
                     Count: {count()}
@@ -176,18 +186,30 @@ function Counter() {
     );
 }
 
+function MyLayout() {
+    return (
+        <Column class="h-screen bg-base-100">
+            <Toolbar>
+                <DragRegion class="flex-1 h-full" />
+                <WindowControls />
+            </Toolbar>
+            <Counter />
+        </Column>
+    );
+}
+
 export default plugin({
     id: 'my-plugin',
     name: 'My Plugin',
     version: '1.0.0',
 
     start(api) {
-        api.register('main-view', {
-            type: 'panel',
-            component: Counter,
-            label: 'My Plugin',
-            icon: IconHome
+        api.layout.register('my-layout', {
+            name: 'My Layout',
+            component: MyLayout,
+            order: 1
         });
+        api.layout.setActive('my-layout');
     }
 });
 ```
@@ -203,18 +225,18 @@ Now you have an interactive counter!
 
 ## Step 8: Add a Sidebar
 
-Let's add a sidebar panel:
+Let's add a sidebar to your layout:
 
 ```jsx
-import { plugin } from 'webarcade';
+import { plugin, Column, Row, Toolbar } from 'webarcade';
+import { DragRegion, WindowControls } from 'webarcade/components/ui';
 import { createSignal } from 'solid-js';
-import { IconHome, IconSettings } from '@tabler/icons-solidjs';
 
 const [count, setCount] = createSignal(0);
 
 function MainContent() {
     return (
-        <div class="flex items-center justify-center h-full">
+        <div class="flex-1 flex items-center justify-center">
             <div class="text-center">
                 <h1 class="text-4xl font-bold mb-4">
                     Count: {count()}
@@ -232,7 +254,7 @@ function MainContent() {
 
 function Sidebar() {
     return (
-        <div class="p-4">
+        <div class="w-64 bg-base-200 p-4 border-r border-base-300">
             <h2 class="font-bold text-lg mb-4">Controls</h2>
             <div class="space-y-2">
                 <button
@@ -258,27 +280,33 @@ function Sidebar() {
     );
 }
 
+function MyLayout() {
+    return (
+        <Column class="h-screen bg-base-100">
+            <Toolbar>
+                <DragRegion class="flex-1 h-full" />
+                <WindowControls />
+            </Toolbar>
+            <Row class="flex-1">
+                <Sidebar />
+                <MainContent />
+            </Row>
+        </Column>
+    );
+}
+
 export default plugin({
     id: 'my-plugin',
     name: 'My Plugin',
     version: '1.0.0',
 
     start(api) {
-        // Main content panel
-        api.register('main-view', {
-            type: 'panel',
-            component: MainContent,
-            label: 'Counter',
-            icon: IconHome
+        api.layout.register('my-layout', {
+            name: 'My Layout',
+            component: MyLayout,
+            order: 1
         });
-
-        // Sidebar panel
-        api.register('controls', {
-            type: 'panel',
-            component: Sidebar,
-            label: 'Controls',
-            icon: IconSettings
-        });
+        api.layout.setActive('my-layout');
     }
 });
 ```
@@ -305,7 +333,7 @@ export default plugin({
 ```jsx
 start(api) {
     // Runs ONCE when plugin loads
-    // Register all your UI components here
+    // Register your layout and set it active
 }
 
 stop(api) {
@@ -314,18 +342,41 @@ stop(api) {
 }
 ```
 
-### 3. Registering Components
+### 3. Registering a Layout
 
 ```jsx
-api.register('main-view', {
-    type: 'panel',        // Component type
-    component: Counter,   // SolidJS component to render
-    label: 'Counter',     // Display label
-    icon: IconHome        // Optional icon
+api.layout.register('my-layout', {
+    name: 'My Layout',      // Display name
+    component: MyLayout,    // SolidJS component to render
+    order: 1                // Priority (lower = higher priority)
 });
+
+api.layout.setActive('my-layout');  // Make this layout visible
 ```
 
-### 4. SolidJS Reactivity
+### 4. Layout Structure
+
+```jsx
+import { Column, Row, Toolbar } from 'webarcade';
+import { DragRegion, WindowControls } from 'webarcade/components/ui';
+
+function MyLayout() {
+    return (
+        <Column class="h-screen">      {/* Vertical flex container */}
+            <Toolbar>                   {/* Top bar */}
+                <DragRegion />          {/* Draggable area */}
+                <WindowControls />      {/* Min/max/close buttons */}
+            </Toolbar>
+            <Row class="flex-1">        {/* Horizontal flex container */}
+                <Sidebar />             {/* Your sidebar */}
+                <MainContent />         {/* Your main content */}
+            </Row>
+        </Column>
+    );
+}
+```
+
+### 5. SolidJS Reactivity
 
 ```jsx
 const [count, setCount] = createSignal(0);
