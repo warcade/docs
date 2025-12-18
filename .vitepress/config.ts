@@ -52,9 +52,7 @@ export default defineConfig({
       {
         text: 'Layouts',
         items: [
-          { text: 'Overview', link: '/layouts/' },
-          { text: 'Primitives', link: '/layouts/primitives' },
-          { text: 'Custom Layouts', link: '/layouts/custom-layouts' }
+          { text: 'Overview', link: '/layouts/' }
         ]
       },
       {
@@ -69,8 +67,7 @@ export default defineConfig({
       {
         text: 'Components',
         items: [
-          { text: 'Overview', link: '/components/' },
-          { text: 'Forms', link: '/components/forms' }
+          { text: 'Overview', link: '/components/' }
         ]
       },
       {

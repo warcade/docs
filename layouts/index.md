@@ -1,6 +1,6 @@
 # Layouts
 
-The layout system is how you structure your WebArcade application. It provides a flexible, composable way to arrange panels, toolbars, menus, and status bars.
+The layout system is how you structure your WebArcade application. It provides a flexible way to arrange panels, toolbars, menus, and status bars.
 
 ## Overview
 
@@ -22,72 +22,11 @@ The layout system is how you structure your WebArcade application. It provides a
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## Core Concepts
+## Registering Panels
 
-### Slots
-
-A **Slot** is a container that holds content from plugins. When a plugin registers a panel, it gets rendered inside a Slot. Multiple panels in the same Slot become tabs.
+Plugins register panels to appear in slots:
 
 ```jsx
-// Plugin A registers a panel
-api.register('file-explorer', {
-    type: 'panel',
-    slot: 'left',
-    component: FileExplorer,
-    label: 'Files'
-});
-
-// Plugin B registers another panel in the same slot
-api.register('git-panel', {
-    type: 'panel',
-    slot: 'left',
-    component: GitPanel,
-    label: 'Git'
-});
-
-// Result: Left panel has two tabs - "Files" and "Git"
-```
-
-### Layout Primitives
-
-WebArcade provides layout primitives for building custom layouts:
-
-| Component | Purpose |
-|-----------|---------|
-| `Row` | Horizontal flex container |
-| `Column` | Vertical flex container |
-| `Slot` | Renders registered components as tabs |
-| `Resizable` | Container with drag handles for resizing |
-
-### Predefined Slots
-
-The default layout includes these slots:
-
-| Slot Name | Location | Default |
-|-----------|----------|---------|
-| `left` | Left sidebar | Collapsible, resizable |
-| `right` | Right sidebar | Collapsible, resizable |
-| `viewport` | Main content area | Primary workspace |
-| `bottom` | Bottom panel | Collapsible, resizable |
-| `toolbar` | Top toolbar | Always visible |
-| `menu` | Menu bar | Always visible |
-| `status` | Status bar | Always visible |
-
-## Quick Start
-
-### Register a Panel
-
-```jsx
-import { plugin } from '@/api/plugin';
-
-function MyPanel() {
-    return (
-        <div class="p-4">
-            <h1>My Panel Content</h1>
-        </div>
-    );
-}
-
 export default plugin({
     id: 'my-plugin',
     name: 'My Plugin',
@@ -96,43 +35,57 @@ export default plugin({
     start(api) {
         api.register('my-panel', {
             type: 'panel',
-            slot: 'viewport',  // Where to render
+            slot: 'viewport',
             component: MyPanel,
-            label: 'My Panel',
-            icon: IconCode
+            label: 'My Panel'
         });
     }
 });
 ```
 
-### Register Toolbar Items
+## Slots
+
+The default layout includes these slots:
+
+| Slot | Location |
+|------|----------|
+| `left` | Left sidebar |
+| `right` | Right sidebar |
+| `viewport` | Main content area |
+| `bottom` | Bottom panel |
+| `toolbar` | Top toolbar |
+| `menu` | Menu bar |
+| `status` | Status bar |
+
+## Toolbar Items
 
 ```jsx
 api.register('save-button', {
     type: 'toolbar',
-    component: () => (
-        <button class="btn btn-sm btn-ghost" onClick={handleSave}>
-            <IconDeviceFloppy size={18} />
-        </button>
-    ),
+    component: SaveButton,
     position: 'left'  // 'left', 'center', or 'right'
 });
 ```
 
-### Register Status Bar Items
+## Status Bar Items
 
 ```jsx
 api.register('line-count', {
     type: 'status',
-    component: () => <span>Lines: {lineCount()}</span>,
+    component: LineCounter,
     position: 'right'
 });
 ```
 
-## Layout Sections
+## Layout Manager
 
-### [Primitives](./primitives)
-Learn about Row, Column, Slot, and Resizable components.
+Switch between layouts programmatically:
 
-### [Custom Layouts](./custom-layouts)
-Create your own layouts with the Layout Manager.
+```jsx
+// In your plugin
+api.layout.setActive('compact');
+api.layout.back();
+api.layout.canGoBack();
+api.layout.getActiveId();
+api.layout.getAll();
+```
