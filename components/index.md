@@ -37,21 +37,8 @@ function MyPanel() {
 
 ## Component Sections
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-
 ### [Forms](./forms)
 Input, Select, Checkbox, Radio, Toggle, Range, and more.
-
-### [Display](./display)
-Cards, Badges, Alerts, Avatars, and loading states.
-
-### [Feedback](./feedback)
-Toasts, Modals, Tooltips, Popovers, and Drawers.
-
-### [Data](./data)
-Tables, TreeViews, Code blocks, and Timelines.
-
-</div>
 
 ---
 

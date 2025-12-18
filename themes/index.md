@@ -74,18 +74,8 @@ api.theme.setAuto();
 
 ## Theme Sections
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-
 ### [Using Themes](./using-themes)
 Set, switch, and detect themes in your plugins.
 
 ### [Theme Colors](./colors)
 Understanding semantic colors and how to use them.
-
-### [Custom Themes](./custom-themes)
-Create your own themes with custom colors.
-
-### [Theme API](./api)
-Complete API reference for theme operations.
-
-</div>

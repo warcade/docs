@@ -100,8 +100,6 @@ api.bridge.store.watch('settings.theme', (newValue, oldValue) => {
 
 ## Bridge Sections
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-
 ### [Services](./services)
 Share functionality between plugins with the service pattern.
 
@@ -110,8 +108,3 @@ Publish and subscribe to events with the message bus.
 
 ### [Shared Store](./store)
 Share reactive state across plugins.
-
-### [Backend Communication](./backend)
-Connect to Rust backends via HTTP.
-
-</div>
