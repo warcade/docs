@@ -132,70 +132,9 @@ export default plugin({
 });
 ```
 
-### Plugin Hooks (Recommended for Components)
+### Next Steps
 
-Use hooks in your components for reactive access and automatic cleanup:
-
-```jsx
-import {
-    useReactiveService,
-    useEvent,
-    useStore,
-    useDebounce
-} from '@/api/plugin';
-
-function MyComponent() {
-    // Reactive service access
-    const engine = useReactiveService('game-engine');
-
-    // Shared state with reactivity
-    const [score, setScore] = useStore('player.score', 0);
-
-    // Events with auto-cleanup
-    useEvent('enemy:killed', (data) => {
-        setScore(s => s + data.points);
-    });
-
-    return <div>Score: {score()}</div>;
-}
-```
-
-| Hook | What it does |
-|------|--------------|
-| `useReactiveService()` | Access a service with reactivity |
-| `useService()` | Access a required service |
-| `useOptionalService()` | Access an optional service |
-| `useServiceReady()` | Callback when service is ready |
-| `useEvent()` | Subscribe to events (auto-cleanup) |
-| `usePublish()` | Get a publish function for events |
-| `useStore()` | Read/write shared state reactively |
-| `useStoreSelector()` | Derive computed values from store |
-| `useDebounce()` | Debounce a function |
-| `useThrottle()` | Throttle a function |
-
-See the [Plugin Hooks API](/api/hooks) for complete documentation.
-
-### Key API Methods
-
-For lifecycle hooks (`start()`, `stop()`) and non-component code:
-
-| Method | What it does |
-|--------|--------------|
-| `api.register()` | Register a component (panel, toolbar, menu, status) |
-| `api.unregister()` | Remove a registered component |
-| `api.slot().show()` | Show a component |
-| `api.slot().hide()` | Hide a component |
-| `api.slot().toggle()` | Toggle component visibility |
-| `api.slot().focus()` | Focus a component |
-| `api.layout.setActive()` | Switch to a different layout |
-| `api.layout.back()` | Go back to previous layout |
-| `api.shortcut()` | Register keyboard shortcuts |
-| `api.context()` | Register context menu items |
-| `api.provide()` | Provide a service for other plugins |
-| `api.use()` | Use a service from another plugin |
-| `api.emit()` | Emit an event |
-| `api.on()` | Listen for events |
-| `api.set()` | Set shared state |
-| `api.get()` | Get shared state |
-| `api.watch()` | Watch for state changes |
-| `api.selector()` | Get reactive state (SolidJS) |
+- **[Creating Plugins](/plugins/creating-plugins)** - Build your first plugin
+- **[Plugin Hooks](/api/hooks)** - Reactive hooks for components
+- **[Bridge API](/api/bridge-api)** - Direct API for lifecycle hooks
+- **[API Reference](/api/)** - Complete API documentation
