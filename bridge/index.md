@@ -34,12 +34,10 @@ The Bridge provides three communication patterns:
 ### Provide a Service
 
 ```jsx
-// audio-plugin/index.jsx
 export default plugin({
     id: 'audio-plugin',
     start(api) {
-        // Provide a service for other plugins
-        api.bridge.provide('audio', {
+        api.provide('audio', {
             play: (url) => { /* play audio */ },
             stop: () => { /* stop audio */ },
             volume: (level) => { /* set volume */ }
@@ -51,14 +49,15 @@ export default plugin({
 ### Use a Service
 
 ```jsx
-// player-plugin/index.jsx
 export default plugin({
     id: 'player-plugin',
     start(api) {
-        // Get the audio service
-        const audio = api.bridge.get('audio');
+        // Non-blocking - returns null if not available
+        const audio = api.tryUse('audio');
 
-        // Use it
+        // Or wait for it (async, 10s default timeout)
+        const audio = await api.use('audio');
+
         audio.play('song.mp3');
     }
 });
@@ -67,8 +66,7 @@ export default plugin({
 ### Publish a Message
 
 ```jsx
-// When something happens
-api.bridge.publish('file-saved', {
+api.publish('file-saved', {
     path: '/path/to/file.txt',
     timestamp: Date.now()
 });
@@ -77,8 +75,7 @@ api.bridge.publish('file-saved', {
 ### Subscribe to Messages
 
 ```jsx
-// Listen for the event
-api.bridge.subscribe('file-saved', (data) => {
+const unsubscribe = api.subscribe('file-saved', (data) => {
     console.log(`File saved: ${data.path}`);
 });
 ```
@@ -87,13 +84,13 @@ api.bridge.subscribe('file-saved', (data) => {
 
 ```jsx
 // Write to shared store
-api.bridge.store.set('settings.theme', 'dark');
+api.set('settings.theme', 'dark');
 
 // Read from shared store
-const theme = api.bridge.store.get('settings.theme');
+const theme = api.get('settings.theme');
 
 // Watch for changes
-api.bridge.store.watch('settings.theme', (newValue, oldValue) => {
+api.watch('settings.theme', (newValue, oldValue, path) => {
     console.log(`Theme changed to ${newValue}`);
 });
 ```

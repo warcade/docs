@@ -1,382 +1,132 @@
 # Shared Store
 
-The Shared Store lets plugins share reactive state. Any plugin can read, write, and watch values in the store.
+The Shared Store lets plugins share reactive state using dot-notation paths.
 
-## Basic Usage
-
-### Set Values
+## Setting Values
 
 ```jsx
-// Set a value
-api.bridge.store.set('theme', 'dark');
-
-// Set nested values with dot notation
-api.bridge.store.set('settings.editor.fontSize', 14);
-api.bridge.store.set('settings.editor.lineNumbers', true);
-
-// Set entire objects
-api.bridge.store.set('user', {
+api.set('theme', 'dark');
+api.set('settings.editor.fontSize', 14);
+api.set('user', {
     id: 123,
     name: 'John',
-    preferences: {
-        notifications: true
-    }
+    preferences: { notifications: true }
 });
 ```
 
-### Get Values
+## Getting Values
 
 ```jsx
-// Get a value
-const theme = api.bridge.store.get('theme');
-// 'dark'
+const theme = api.get('theme');
+const fontSize = api.get('settings.editor.fontSize');
 
-// Get nested values
-const fontSize = api.bridge.store.get('settings.editor.fontSize');
-// 14
-
-// Get with default value
-const locale = api.bridge.store.get('settings.locale', 'en-US');
+// With default value
+const locale = api.get('settings.locale', 'en-US');
 ```
-
-### Delete Values
-
-```jsx
-// Delete a value
-api.bridge.store.delete('theme');
-
-// Delete nested value
-api.bridge.store.delete('settings.editor.fontSize');
-```
-
----
 
 ## Watching Changes
 
-### Watch Specific Paths
-
 ```jsx
-// Watch a single value
-api.bridge.store.watch('theme', (newValue, oldValue) => {
+const unwatch = api.watch('theme', (newValue, oldValue, path) => {
     console.log(`Theme changed from ${oldValue} to ${newValue}`);
-    updateTheme(newValue);
 });
 
-// Watch nested paths
-api.bridge.store.watch('settings.editor.fontSize', (size) => {
-    editor.setFontSize(size);
-});
-```
-
-### Watch Objects
-
-```jsx
-// Watch entire object
-api.bridge.store.watch('user', (newUser, oldUser) => {
-    if (newUser.id !== oldUser?.id) {
-        reloadUserData();
-    }
-});
-
-// Watch with deep option for nested changes
-api.bridge.store.watch('settings', (settings) => {
-    saveSettings(settings);
-}, { deep: true });
-```
-
-### Unwatch
-
-```jsx
-const unwatch = api.bridge.store.watch('theme', handler);
-
-// Later, stop watching
+// Stop watching
 unwatch();
 ```
 
----
-
-## Store Hooks
-
-Use hooks in components for reactive access:
-
-### useStore
-
-Get reactive access to a store path:
+## Updating Values
 
 ```jsx
-import { useStore } from '@/api/plugin/hooks';
+// Update with function
+api.update('counter', (current) => current + 1);
 
-function ThemeToggle() {
-    const [theme, setTheme] = useStore('theme');
-
-    return (
-        <button onClick={() => setTheme(theme() === 'dark' ? 'light' : 'dark')}>
-            Current: {theme()}
-        </button>
-    );
-}
+// Merge objects
+api.merge('settings', { theme: 'dark', fontSize: 14 });
 ```
 
-### useStoreSelector
-
-Select and transform store values:
+## Deleting Values
 
 ```jsx
-import { useStoreSelector } from '@/api/plugin/hooks';
-
-function UserGreeting() {
-    // Select just the name from user object
-    const userName = useStoreSelector('user', (user) => user?.name ?? 'Guest');
-
-    return <span>Hello, {userName()}</span>;
-}
+api.delete('settings.theme');
 ```
 
-### useStoreValue (Read-Only)
-
-When you only need to read:
+## Checking Existence
 
 ```jsx
-import { useStoreValue } from '@/api/plugin/hooks';
-
-function StatusBar() {
-    const connectionStatus = useStoreValue('connection.status');
-
-    return (
-        <span class={connectionStatus() === 'online' ? 'text-success' : 'text-error'}>
-            {connectionStatus()}
-        </span>
-    );
+if (api.has('settings.theme')) {
+    // Path exists
 }
 ```
-
----
 
 ## Batch Updates
 
-Update multiple values atomically:
-
 ```jsx
-// Individual updates trigger multiple reactions
-api.bridge.store.set('settings.theme', 'dark');
-api.bridge.store.set('settings.fontSize', 14);
-api.bridge.store.set('settings.language', 'en');
-
-// Batch updates trigger one reaction
-api.bridge.store.batch(() => {
-    api.bridge.store.set('settings.theme', 'dark');
-    api.bridge.store.set('settings.fontSize', 14);
-    api.bridge.store.set('settings.language', 'en');
+api.batch(() => {
+    api.set('settings.theme', 'dark');
+    api.set('settings.fontSize', 14);
+    api.set('settings.language', 'en');
 });
 ```
 
----
+## Reactive Selectors
 
-## Namespaced Stores
-
-Plugins should use namespaces to avoid conflicts:
+For use in SolidJS components:
 
 ```jsx
-// Plugin: file-explorer
-api.bridge.store.set('file-explorer.currentPath', '/home');
-api.bridge.store.set('file-explorer.showHidden', false);
+function ThemeDisplay() {
+    const theme = api.selector('settings.theme', 'light');
 
-// Plugin: editor
-api.bridge.store.set('editor.activeFile', 'main.js');
-api.bridge.store.set('editor.unsavedChanges', true);
-
-// Shared settings (no namespace)
-api.bridge.store.set('theme', 'dark');
-```
-
-### Create Namespaced Helper
-
-```jsx
-function createNamespacedStore(namespace) {
-    return {
-        get: (key, defaultValue) =>
-            api.bridge.store.get(`${namespace}.${key}`, defaultValue),
-        set: (key, value) =>
-            api.bridge.store.set(`${namespace}.${key}`, value),
-        watch: (key, callback, options) =>
-            api.bridge.store.watch(`${namespace}.${key}`, callback, options),
-        delete: (key) =>
-            api.bridge.store.delete(`${namespace}.${key}`)
-    };
-}
-
-// Usage in plugin
-const store = createNamespacedStore('my-plugin');
-store.set('count', 0);
-store.watch('count', (n) => console.log('Count:', n));
-```
-
----
-
-## Store Patterns
-
-### Settings Pattern
-
-```jsx
-// Define defaults
-const defaultSettings = {
-    theme: 'system',
-    fontSize: 14,
-    autoSave: true,
-    autoSaveInterval: 60000
-};
-
-// Initialize with defaults
-export default plugin({
-    id: 'settings-plugin',
-    start(api) {
-        const saved = localStorage.getItem('settings');
-        const settings = saved ? JSON.parse(saved) : defaultSettings;
-
-        api.bridge.store.set('settings', settings);
-
-        // Persist changes
-        api.bridge.store.watch('settings', (settings) => {
-            localStorage.setItem('settings', JSON.stringify(settings));
-        }, { deep: true });
-
-        // Provide settings service
-        api.bridge.provide('settings', {
-            get: (key) => api.bridge.store.get(`settings.${key}`),
-            set: (key, value) => api.bridge.store.set(`settings.${key}`, value),
-            reset: () => api.bridge.store.set('settings', defaultSettings)
-        });
-    }
-});
-```
-
-### State Machine Pattern
-
-```jsx
-const states = {
-    IDLE: 'idle',
-    LOADING: 'loading',
-    ERROR: 'error',
-    SUCCESS: 'success'
-};
-
-api.bridge.store.set('upload.state', states.IDLE);
-api.bridge.store.set('upload.progress', 0);
-api.bridge.store.set('upload.error', null);
-
-async function uploadFile(file) {
-    api.bridge.store.batch(() => {
-        api.bridge.store.set('upload.state', states.LOADING);
-        api.bridge.store.set('upload.progress', 0);
-        api.bridge.store.set('upload.error', null);
-    });
-
-    try {
-        await upload(file, (progress) => {
-            api.bridge.store.set('upload.progress', progress);
-        });
-
-        api.bridge.store.set('upload.state', states.SUCCESS);
-    } catch (error) {
-        api.bridge.store.batch(() => {
-            api.bridge.store.set('upload.state', states.ERROR);
-            api.bridge.store.set('upload.error', error.message);
-        });
-    }
+    return <span>Current theme: {theme()}</span>;
 }
 ```
 
-### Counter Pattern
+## Store Hooks
 
 ```jsx
-// Simple counter with increment/decrement
-api.bridge.store.set('counter', 0);
+import { useStore, useStoreSelector } from '@/api/plugin/hooks';
 
-function increment() {
-    const current = api.bridge.store.get('counter');
-    api.bridge.store.set('counter', current + 1);
+function Settings() {
+    // Get and set
+    const [theme, setTheme] = useStore('settings.theme');
+
+    return (
+        <button onClick={() => setTheme('dark')}>
+            Theme: {theme()}
+        </button>
+    );
 }
 
-function decrement() {
-    const current = api.bridge.store.get('counter');
-    api.bridge.store.set('counter', current - 1);
-}
-```
+function UserGreeting() {
+    // Derived value
+    const fullName = useStoreSelector(
+        (store) => `${store.user?.firstName} ${store.user?.lastName}`
+    );
 
----
-
-## Debugging
-
-### Log All Changes
-
-```jsx
-// In development, log all store changes
-if (import.meta.env.DEV) {
-    api.bridge.store.watch('*', (value, oldValue, path) => {
-        console.log(`[Store] ${path}:`, oldValue, '→', value);
-    });
+    return <span>Hello, {fullName()}</span>;
 }
 ```
 
-### Get Full Store State
+## Namespacing
+
+Plugins should namespace their store keys:
 
 ```jsx
-// Get entire store (for debugging)
-const state = api.bridge.store.getState();
-console.log('Full store:', state);
+// Good - namespaced
+api.set('my-plugin.count', 0);
+api.set('my-plugin.settings.enabled', true);
+
+// Avoid - could conflict
+api.set('count', 0);
 ```
 
----
+## Direct Store Access
 
-## Best Practices
-
-### 1. Use Namespaces
+For advanced SolidJS usage:
 
 ```jsx
-// Good
-api.bridge.store.set('my-plugin.count', 0);
+const store = api.getStore();
 
-// Avoid - could conflict with other plugins
-api.bridge.store.set('count', 0);
-```
-
-### 2. Initialize on Start
-
-```jsx
-export default plugin({
-    id: 'my-plugin',
-    start(api) {
-        // Initialize all store values
-        api.bridge.store.set('my-plugin', {
-            initialized: true,
-            data: [],
-            loading: false
-        });
-    }
-});
-```
-
-### 3. Clean Up on Stop
-
-```jsx
-export default plugin({
-    id: 'my-plugin',
-    stop(api) {
-        // Clean up store values
-        api.bridge.store.delete('my-plugin');
-    }
-});
-```
-
-### 4. Use Selectors for Derived Data
-
-```jsx
-// Don't store derived data
-// Bad
-api.bridge.store.set('fullName', `${firstName} ${lastName}`);
-
-// Good - compute when needed
-const fullName = useStoreSelector('user', (user) =>
-    `${user.firstName} ${user.lastName}`
-);
+// Use directly in components with fine-grained reactivity
+<div>{store.settings?.theme}</div>
 ```
