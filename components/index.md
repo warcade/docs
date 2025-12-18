@@ -4,7 +4,7 @@ WebArcade includes a UI component library built with SolidJS, Tailwind CSS, and 
 
 ## Available Components
 
-Components are located in `src/components/ui/`:
+Components are located in `src/ui/`:
 
 ### Form Inputs
 - Input (text, with `multiline` prop for textarea)
@@ -66,7 +66,7 @@ Components are located in `src/components/ui/`:
 Import from the UI library:
 
 ```jsx
-import { Input, Select, Card, Modal } from 'webarcade/components/ui';
+import { Input, Select, Card, Modal } from 'webarcade/ui';
 ```
 
 ## Styling
@@ -84,7 +84,7 @@ Components use DaisyUI classes and support:
 ## Toast Notifications
 
 ```jsx
-import { toast } from 'webarcade/components/ui';
+import { toast } from 'webarcade/ui';
 
 toast.success('Saved!');
 toast.error('Failed');
@@ -93,5 +93,5 @@ toast.warning('Warning');
 ```
 
 ::: tip
-See the actual component source files in `src/components/ui/` for exact props and usage.
+See the actual component source files in `src/ui/` for exact props and usage.
 :::

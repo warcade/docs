@@ -7,33 +7,33 @@ The Layout Manager provides a dynamic system for switching between different UI 
 Layouts are SolidJS components that define how the UI is structured. You can register multiple layouts and switch between them dynamically.
 
 ```jsx
-import { layoutManager } from 'webarcade';
+import { layout } from 'webarcade';
 
 // Register layouts
-layoutManager.register('editor', {
+layout.register('editor', {
     name: 'Editor',
     component: EditorLayout,
     icon: IconCode
 });
 
-layoutManager.register('preview', {
+layout.register('preview', {
     name: 'Preview',
     component: PreviewLayout,
     icon: IconEye
 });
 
 // Switch layouts
-layoutManager.setActive('preview');
+layout.setActive('preview');
 ```
 
 ## Registering Layouts
 
-### layoutManager.register(id, config)
+### layout.register(id, config)
 
 Register a new layout.
 
 ```jsx
-layoutManager.register('material-editor', {
+layout.register('material-editor', {
     name: 'Material Editor',
     component: MaterialEditorLayout,
     description: 'Edit materials and shaders',
@@ -58,77 +58,77 @@ layoutManager.register('material-editor', {
 | `config.order` | `number` | Sort order (default: 0) |
 | `config.slots` | `object` | Default slot assignments |
 
-### layoutManager.unregister(id)
+### layout.unregister(id)
 
 Remove a registered layout.
 
 ```jsx
-layoutManager.unregister('material-editor');
+layout.unregister('material-editor');
 ```
 
 ## Switching Layouts
 
-### layoutManager.setActive(id)
+### layout.setActive(id)
 
 Switch to a different layout.
 
 ```jsx
-layoutManager.setActive('material-editor');
+layout.setActive('material-editor');
 ```
 
 Returns `true` if successful, `false` if layout not found.
 
-### layoutManager.back()
+### layout.back()
 
 Go back to the previous layout. The Layout Manager maintains a history stack.
 
 ```jsx
-if (layoutManager.canGoBack()) {
-    layoutManager.back();
+if (layout.canGoBack()) {
+    layout.back();
 }
 ```
 
-### layoutManager.canGoBack()
+### layout.canGoBack()
 
 Check if there's a previous layout to go back to.
 
 ```jsx
-const hasHistory = layoutManager.canGoBack();
+const hasHistory = layout.canGoBack();
 ```
 
 ## Querying Layouts
 
-### layoutManager.getActiveId()
+### layout.getActiveId()
 
 Get the current active layout ID.
 
 ```jsx
-const currentId = layoutManager.getActiveId();
+const currentId = layout.getActiveId();
 ```
 
-### layoutManager.getActive()
+### layout.getActive()
 
 Get the full configuration of the active layout.
 
 ```jsx
-const layout = layoutManager.getActive();
+const layout = layout.getActive();
 console.log(layout.name);  // "Material Editor"
 ```
 
-### layoutManager.get(id)
+### layout.get(id)
 
 Get a layout by ID.
 
 ```jsx
-const layout = layoutManager.get('material-editor');
+const layout = layout.get('material-editor');
 ```
 
-### layoutManager.getAll()
+### layout.getAll()
 
 Get all registered layouts, sorted by order.
 
 ```jsx
-const layouts = layoutManager.getAll();
+const layouts = layout.getAll();
 layouts.forEach(layout => {
     console.log(layout.name);
 });
@@ -138,23 +138,23 @@ layouts.forEach(layout => {
 
 Slots allow layouts to specify which components should be displayed where. You can update slot assignments at runtime.
 
-### layoutManager.setSlots(layoutId, slots)
+### layout.setSlots(layoutId, slots)
 
 Update slot assignments for a layout.
 
 ```jsx
-layoutManager.setSlots('editor', {
+layout.setSlots('editor', {
     sidebar: 'file-explorer',
     bottomPanel: 'terminal'
 });
 ```
 
-### layoutManager.getSlots(layoutId)
+### layout.getSlots(layoutId)
 
 Get slot assignments for a layout.
 
 ```jsx
-const slots = layoutManager.getSlots('editor');
+const slots = layout.getSlots('editor');
 ```
 
 ## Reactive Signals
@@ -162,11 +162,11 @@ const slots = layoutManager.getSlots('editor');
 For use in SolidJS components, the Layout Manager provides reactive signals.
 
 ```jsx
-import { layoutManager } from 'webarcade';
+import { layout } from 'webarcade';
 
 function LayoutSwitcher() {
-    const activeId = layoutManager.signals.activeId;
-    const layouts = layoutManager.signals.layouts;
+    const activeId = layout.signals.activeId;
+    const layouts = layout.signals.layouts;
 
     return (
         <div class="flex gap-2">
@@ -174,7 +174,7 @@ function LayoutSwitcher() {
                 {(layout) => (
                     <button
                         class={activeId() === layout.id ? 'active' : ''}
-                        onClick={() => layoutManager.setActive(layout.id)}
+                        onClick={() => layout.setActive(layout.id)}
                     >
                         {layout.name}
                     </button>

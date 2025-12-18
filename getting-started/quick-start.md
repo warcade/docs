@@ -45,7 +45,7 @@ my-app/
 The WebArcade framework (APIs, components, etc.) comes from the `webarcade` npm package. Just import what you need:
 ```jsx
 import { plugin, Column, Row, Toolbar } from 'webarcade';
-import { DragRegion, WindowControls } from 'webarcade/components/ui';
+import { DragRegion, WindowControls } from 'webarcade/ui';
 ```
 :::
 
@@ -84,7 +84,7 @@ Edit `plugins/my-plugin/index.jsx` to create a complete plugin with a layout:
 
 ```jsx
 import { plugin, Column, Toolbar } from 'webarcade';
-import { DragRegion, WindowControls } from 'webarcade/components/ui';
+import { DragRegion, WindowControls } from 'webarcade/ui';
 
 // Your main content component
 function HelloWorld() {
@@ -163,7 +163,7 @@ Let's add a button that counts clicks. Update your plugin:
 
 ```jsx
 import { plugin, Column, Toolbar } from 'webarcade';
-import { DragRegion, WindowControls } from 'webarcade/components/ui';
+import { DragRegion, WindowControls } from 'webarcade/ui';
 import { createSignal } from 'solid-js';
 
 function Counter() {
@@ -232,7 +232,7 @@ Let's add a sidebar to your layout:
 
 ```jsx
 import { plugin, Column, Row, Toolbar } from 'webarcade';
-import { DragRegion, WindowControls } from 'webarcade/components/ui';
+import { DragRegion, WindowControls } from 'webarcade/ui';
 import { createSignal } from 'solid-js';
 
 const [count, setCount] = createSignal(0);
@@ -336,7 +336,7 @@ Then use `Slot` in your layout to pull it in:
 
 ```jsx
 import { plugin, Column, Row, Toolbar, Slot } from 'webarcade';
-import { DragRegion, WindowControls } from 'webarcade/components/ui';
+import { DragRegion, WindowControls } from 'webarcade/ui';
 
 function MyLayout() {
     return (
@@ -410,7 +410,7 @@ api.layout.setActive('my-layout');  // Make this layout visible
 
 ```jsx
 import { Column, Row, Toolbar } from 'webarcade';
-import { DragRegion, WindowControls } from 'webarcade/components/ui';
+import { DragRegion, WindowControls } from 'webarcade/ui';
 
 function MyLayout() {
     return (
