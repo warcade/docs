@@ -1,52 +1,11 @@
-# Theming
+# Using Themes
 
-WebArcade uses DaisyUI for theming, providing a consistent and customizable appearance across all plugins.
+Learn how to work with themes in your plugins.
 
-## Built-in Themes
-
-WebArcade includes several built-in themes:
-
-### Light Themes
-- `light` - Default light theme
-- `cupcake` - Soft pink and purple
-- `bumblebee` - Yellow and black
-- `emerald` - Green focused
-- `corporate` - Professional blue
-- `garden` - Nature inspired
-- `lofi` - Low contrast light
-- `pastel` - Soft pastel colors
-- `fantasy` - Purple and pink
-- `wireframe` - Minimal wireframe style
-- `cmyk` - Print-inspired colors
-- `autumn` - Warm fall colors
-- `acid` - Bright neon colors
-- `lemonade` - Fresh citrus colors
-- `winter` - Cool winter tones
-
-### Dark Themes
-- `dark` - Default dark theme
-- `synthwave` - Retro 80s neon
-- `halloween` - Orange and purple
-- `forest` - Dark green
-- `aqua` - Teal and cyan
-- `black` - Pure black
-- `luxury` - Gold and black
-- `dracula` - Popular dark theme
-- `business` - Professional dark
-- `night` - Deep blue night
-- `coffee` - Brown tones
-- `dim` - Subtle dark
-- `nord` - Nordic color palette
-- `sunset` - Warm sunset colors
-
----
-
-## Using Themes
-
-### Setting the Theme
+## Setting the Theme
 
 ```jsx
-// Set theme programmatically
+// Set theme by name
 api.theme.set('dracula');
 
 // Get current theme
@@ -56,7 +15,7 @@ const currentTheme = api.theme.get();
 const isDark = api.theme.isDark();
 ```
 
-### Theme Selector Component
+## Theme Selector Component
 
 ```jsx
 import { createSignal, For } from 'solid-js';
@@ -94,7 +53,9 @@ function ThemeSelector() {
 }
 ```
 
-### Listening for Theme Changes
+---
+
+## Listening for Theme Changes
 
 ```jsx
 // Listen for theme changes
@@ -106,144 +67,9 @@ api.theme.on('change', (newTheme, oldTheme) => {
 
 ---
 
-## Theme Colors
+## System Theme Detection
 
-DaisyUI themes provide semantic color classes:
-
-### Primary Colors
-
-| Class | Description |
-|-------|-------------|
-| `primary` | Main brand color |
-| `primary-focus` | Darker primary for focus |
-| `primary-content` | Text on primary background |
-| `secondary` | Secondary brand color |
-| `secondary-focus` | Darker secondary |
-| `secondary-content` | Text on secondary |
-| `accent` | Accent highlight color |
-| `accent-focus` | Darker accent |
-| `accent-content` | Text on accent |
-| `neutral` | Neutral gray color |
-| `neutral-focus` | Darker neutral |
-| `neutral-content` | Text on neutral |
-
-### Base Colors
-
-| Class | Description |
-|-------|-------------|
-| `base-100` | Main background |
-| `base-200` | Slightly darker background |
-| `base-300` | Even darker background |
-| `base-content` | Default text color |
-
-### Status Colors
-
-| Class | Description |
-|-------|-------------|
-| `info` | Information (blue) |
-| `success` | Success (green) |
-| `warning` | Warning (yellow) |
-| `error` | Error (red) |
-
-### Using Theme Colors
-
-```jsx
-// In JSX with Tailwind classes
-<div class="bg-base-100 text-base-content">
-    <button class="btn btn-primary">Primary Button</button>
-    <button class="btn btn-secondary">Secondary Button</button>
-    <span class="text-success">Success text</span>
-    <span class="text-error">Error text</span>
-</div>
-
-// Backgrounds
-<div class="bg-primary text-primary-content">Primary background</div>
-<div class="bg-base-200">Slightly darker background</div>
-
-// Borders
-<div class="border border-base-300">Border color</div>
-<div class="border border-primary">Primary border</div>
-```
-
----
-
-## Custom Themes
-
-### Creating a Custom Theme
-
-Create a custom theme in your plugin's CSS:
-
-```css
-/* styles/custom-theme.css */
-[data-theme="my-custom-theme"] {
-    --p: 262 80% 50%;           /* primary */
-    --pf: 262 80% 40%;          /* primary-focus */
-    --pc: 0 0% 100%;            /* primary-content */
-
-    --s: 314 100% 47%;          /* secondary */
-    --sf: 314 100% 37%;         /* secondary-focus */
-    --sc: 0 0% 100%;            /* secondary-content */
-
-    --a: 174 60% 51%;           /* accent */
-    --af: 174 60% 41%;          /* accent-focus */
-    --ac: 0 0% 100%;            /* accent-content */
-
-    --n: 219 14% 28%;           /* neutral */
-    --nf: 219 14% 18%;          /* neutral-focus */
-    --nc: 0 0% 100%;            /* neutral-content */
-
-    --b1: 220 13% 18%;          /* base-100 */
-    --b2: 220 13% 14%;          /* base-200 */
-    --b3: 220 13% 10%;          /* base-300 */
-    --bc: 220 13% 91%;          /* base-content */
-
-    --in: 198 93% 60%;          /* info */
-    --su: 158 64% 52%;          /* success */
-    --wa: 43 96% 56%;           /* warning */
-    --er: 0 91% 71%;            /* error */
-
-    --rounded-box: 1rem;
-    --rounded-btn: 0.5rem;
-    --rounded-badge: 1.9rem;
-    --animation-btn: 0.25s;
-    --animation-input: 0.2s;
-    --btn-text-case: uppercase;
-    --btn-focus-scale: 0.95;
-    --border-btn: 1px;
-    --tab-border: 1px;
-    --tab-radius: 0.5rem;
-}
-```
-
-### Registering a Custom Theme
-
-```jsx
-// Register the theme
-api.theme.register('my-custom-theme', {
-    name: 'My Custom Theme',
-    type: 'dark',  // 'light' or 'dark'
-    colors: {
-        primary: '#7c3aed',
-        secondary: '#db2777',
-        accent: '#2dd4bf',
-        neutral: '#3d4451',
-        'base-100': '#1d232a',
-        info: '#3abff8',
-        success: '#36d399',
-        warning: '#fbbd23',
-        error: '#f87272'
-    }
-});
-
-// Now it can be used
-api.theme.set('my-custom-theme');
-```
-
----
-
-## Responsive Theme
-
-### System Theme Detection
+### Follow System Preference
 
 ```jsx
 // Follow system preference
@@ -260,6 +86,8 @@ const systemPreference = api.theme.getSystemPreference();
 ### Manual Dark Mode Toggle
 
 ```jsx
+import { IconSun, IconMoon } from '@tabler/icons-solidjs';
+
 function DarkModeToggle() {
     const isDark = () => api.theme.isDark();
 
@@ -283,10 +111,10 @@ function DarkModeToggle() {
 
 ## Theme Persistence
 
-Themes are automatically persisted across sessions:
+Themes are automatically saved to localStorage:
 
 ```jsx
-// Theme is saved to localStorage
+// Theme is saved automatically
 api.theme.set('dracula');
 
 // On next app start, 'dracula' will be restored
@@ -336,54 +164,6 @@ export default plugin({
         this.chart?.update();
     }
 });
-```
-
----
-
-## Component Styling
-
-### Using DaisyUI Components
-
-```jsx
-// Buttons
-<button class="btn">Default</button>
-<button class="btn btn-primary">Primary</button>
-<button class="btn btn-secondary">Secondary</button>
-<button class="btn btn-accent">Accent</button>
-<button class="btn btn-ghost">Ghost</button>
-<button class="btn btn-outline">Outline</button>
-
-// Cards
-<div class="card bg-base-100 shadow-xl">
-    <div class="card-body">
-        <h2 class="card-title">Card Title</h2>
-        <p>Card content goes here</p>
-        <div class="card-actions justify-end">
-            <button class="btn btn-primary">Action</button>
-        </div>
-    </div>
-</div>
-
-// Inputs
-<input type="text" class="input input-bordered" />
-<input type="text" class="input input-primary" />
-<textarea class="textarea textarea-bordered"></textarea>
-<select class="select select-bordered">
-    <option>Option 1</option>
-    <option>Option 2</option>
-</select>
-
-// Badges
-<span class="badge">Default</span>
-<span class="badge badge-primary">Primary</span>
-<span class="badge badge-success">Success</span>
-<span class="badge badge-error">Error</span>
-
-// Alerts
-<div class="alert alert-info">Info message</div>
-<div class="alert alert-success">Success message</div>
-<div class="alert alert-warning">Warning message</div>
-<div class="alert alert-error">Error message</div>
 ```
 
 ---

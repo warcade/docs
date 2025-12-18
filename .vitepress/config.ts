@@ -20,7 +20,13 @@ export default defineConfig({
 
     nav: [
       { text: 'Guide', link: '/getting-started/' },
-      { text: 'Plugins', link: '/plugins/' },
+      { text: 'Features', items: [
+        { text: 'Plugins', link: '/plugins/' },
+        { text: 'Layouts', link: '/layouts/' },
+        { text: 'Bridge', link: '/bridge/' },
+        { text: 'Components', link: '/components/' },
+        { text: 'Themes', link: '/themes/' }
+      ]},
       { text: 'API', link: '/api/' },
       { text: 'CLI', link: '/cli/' },
       { text: 'Examples', link: '/examples/' }
@@ -36,6 +42,46 @@ export default defineConfig({
         ]
       },
       {
+        text: 'Plugins',
+        items: [
+          { text: 'Overview', link: '/plugins/' },
+          { text: 'Creating Plugins', link: '/plugins/creating-plugins' },
+          { text: 'Plugin Lifecycle', link: '/plugins/plugin-lifecycle' }
+        ]
+      },
+      {
+        text: 'Layouts',
+        items: [
+          { text: 'Overview', link: '/layouts/' },
+          { text: 'Primitives', link: '/layouts/primitives' },
+          { text: 'Custom Layouts', link: '/layouts/custom-layouts' }
+        ]
+      },
+      {
+        text: 'Bridge',
+        items: [
+          { text: 'Overview', link: '/bridge/' },
+          { text: 'Services', link: '/bridge/services' },
+          { text: 'Messages', link: '/bridge/messages' },
+          { text: 'Shared Store', link: '/bridge/store' }
+        ]
+      },
+      {
+        text: 'Components',
+        items: [
+          { text: 'Overview', link: '/components/' },
+          { text: 'Forms', link: '/components/forms' }
+        ]
+      },
+      {
+        text: 'Themes',
+        items: [
+          { text: 'Overview', link: '/themes/' },
+          { text: 'Using Themes', link: '/themes/using-themes' },
+          { text: 'Theme Colors', link: '/themes/colors' }
+        ]
+      },
+      {
         text: 'Guide',
         items: [
           { text: 'Overview', link: '/guide/' },
@@ -43,17 +89,9 @@ export default defineConfig({
           { text: 'App Configuration', link: '/guide/app-configuration' },
           { text: 'Project Structure', link: '/guide/project-structure' },
           { text: 'Plugin Configuration', link: '/guide/plugin-config' },
-          { text: 'Theming', link: '/guide/theming' },
+          { text: 'Hot Reloading', link: '/guide/hot-reloading' },
           { text: 'Error Handling', link: '/guide/error-handling' },
           { text: 'Technical Internals', link: '/guide/internals' }
-        ]
-      },
-      {
-        text: 'Plugins',
-        items: [
-          { text: 'Overview', link: '/plugins/' },
-          { text: 'Creating Plugins', link: '/plugins/creating-plugins' },
-          { text: 'Plugin Lifecycle', link: '/plugins/plugin-lifecycle' }
         ]
       },
       {
