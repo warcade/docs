@@ -29,6 +29,7 @@ webarcade --version
 | `webarcade install` | Install plugin from GitHub |
 | `webarcade list` | List available plugins |
 | `webarcade package` | Package for distribution |
+| `webarcade sync` | Sync project's app folder with latest core |
 
 ---
 
@@ -548,6 +549,55 @@ dist/
 ├── my-app-1.0.0-macos-universal.dmg
 └── my-app-1.0.0-linux-x64.AppImage
 ```
+
+---
+
+## webarcade sync
+
+Sync your project's `app/src` folder with the latest core framework code.
+
+### Syntax
+
+```bash
+webarcade sync [options]
+```
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `-b, --branch <branch>` | Git branch to sync from (default: `main`) |
+| `--dry-run` | Show what would be synced without making changes |
+
+### Examples
+
+```bash
+# Sync with latest main branch
+webarcade sync
+
+# Sync with a specific branch
+webarcade sync --branch develop
+
+# Preview changes without applying
+webarcade sync --dry-run
+```
+
+### What It Does
+
+1. Fetches the latest `app/src` from the WebArcade core repository
+2. Copies updated Rust source files to your project's `app/src`
+3. Preserves your local configuration files
+
+### When to Use
+
+Use this command when:
+- A new version of WebArcade is released with core improvements
+- You want to get the latest Rust backend features
+- Bug fixes have been made to the core runtime
+
+::: warning
+This overwrites files in `app/src/`. Your plugin code in `plugins/` is not affected.
+:::
 
 ---
 
